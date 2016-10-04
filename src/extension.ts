@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 
 /**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
-    var patt = /(?:public)? *(\S*) {1,}(\S*) {1,}{ *get; *set; *} *(\r\n)?/;
+    var patt = /(?:public\s)?\s*(\S*)\s+(\S*)\s+{\s*get\s*;\s*set\s*;\s*}/;
     var arr = patt.exec(code);
     if (!arr) {
         return null;
@@ -26,7 +26,7 @@ function csAutoProperty(code: string): Match {
 
     var tsType = tsTypes[type] ? tsTypes[type] : type;
     return {
-        result: name + " : " + type + ";\r\n",
+        result: name + " : " + tsType + ";",
         index: arr.index,
         length: arr[0].length
     };
