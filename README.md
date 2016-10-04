@@ -11,6 +11,10 @@ Supports:
 - Remove attributes
 
 ## Release Notes
-### 1.0.0
+### 0.0.0
 
 Initial release of the tool
+
+### 0.0.3
+
+Support multiline automatic properties
