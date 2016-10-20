@@ -6,7 +6,9 @@ import * as vscode from 'vscode';
 
 /**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
-    var patt = /(?:public\s)?\s*(\S*)\s+(\S*)\s+{\s*get\s*;\s*set\s*;\s*}/;
+    
+    var patt = 
+/(?:public\s)?\s*(\S*)\s+(\S*)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
     var arr = patt.exec(code);
     if (!arr) {
         return null;
@@ -15,18 +17,22 @@ function csAutoProperty(code: string): Match {
     var name = arr[2];
 
     var tsTypes: { [index: string]: string } = {
+        'bool' : 'boolean',
         'int': 'number',
         'float': 'number',
         'decimal': 'number',
         'long': 'number',
         'byte': 'number',
         'short': 'number',
-        'DateTime': 'date',
+        'ushort': 'number',
+        'ulong': 'number',
+        'ubyte': 'number',
+        'DateTime': 'Date',
     };
 
     var tsType = tsTypes[type] ? tsTypes[type] : type;
     return {
-        result: name + " : " + tsType + ";",
+        result: name + ": " + tsType + ";",
         index: arr.index,
         length: arr[0].length
     };
@@ -83,7 +89,7 @@ function csCommentSummary(code: string): Match {
 }
 
 function csPublicMember(code: string): Match {
-    var patt = /public\s+(\S*)\s+(.*)/;
+    var patt = /public\s*(?:(?:abstract)|(?:sealed))?(\S*)\s+(.*)\s*{/;
     var arr = patt.exec(code);
 
     var tsMembers: { [index: string]: string } = {
@@ -93,7 +99,7 @@ function csPublicMember(code: string): Match {
     if (arr == null) return null;
     var tsMember = tsMembers[arr[1]]
     return {
-        result: `export ${tsMember || arr[1]} ${arr[2]}`,
+        result: `export ${tsMember || arr[1]} ${arr[2]} {`,
         index: arr.index,
         length: arr[0].length
     };
