@@ -6,9 +6,9 @@ import * as vscode from 'vscode';
 
 /**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
-    
-    var patt = 
-/(?:public\s)?\s*(\S*)\s+(\S*)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+
+    var patt =
+        /(?:public\s*)?(\S*)\s+(\S*)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
     var arr = patt.exec(code);
     if (!arr) {
         return null;
@@ -17,7 +17,7 @@ function csAutoProperty(code: string): Match {
     var name = arr[2];
 
     var tsTypes: { [index: string]: string } = {
-        'bool' : 'boolean',
+        'bool': 'boolean',
         'int': 'number',
         'float': 'number',
         'decimal': 'number',

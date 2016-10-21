@@ -35,3 +35,6 @@ Added detection for scope modifiers on C# properties
 ### 0.0.6
 ### 0.0.7
 Fixed readme animation
+
+### 0.0.8
+Bug fix: Automatic properties without any visibility modifiers where skipping line jumps
