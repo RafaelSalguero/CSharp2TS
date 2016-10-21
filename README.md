@@ -31,3 +31,7 @@ Added support for `bool`
 Fixed formatting differences between C# and TS
 Fixed bug where DateTime was translated to 'date' instead of 'Date'
 Added detection for scope modifiers on C# properties
+
+### 0.0.6
+### 0.0.7
+Fixed readme animation
