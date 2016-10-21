@@ -4,7 +4,7 @@
 - Select the desired C# code
 - Open the command pallete and run `Convert C# to TypeScript`
 
-![animation](images/animation.gif)
+![animation](https://raw.githubusercontent.com/RafaelSalguero/CSharp2TS/master/images/animation.gif)
 
 Simple C# POCOs to TypeScript converter.
 
