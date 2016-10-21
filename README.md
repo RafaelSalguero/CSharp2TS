@@ -38,3 +38,7 @@ Fixed readme animation
 
 ### 0.0.8
 Bug fix: Automatic properties without any visibility modifiers where skipping line jumps
+
+### 0.0.9
+Support for the 'new' modifier on automatic properties
+Support for C# fat arrow automatic properties

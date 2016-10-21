@@ -3,19 +3,9 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-
-/**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
-function csAutoProperty(code: string): Match {
-
-    var patt =
-        /(?:public\s*)?(\S*)\s+(\S*)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
-    var arr = patt.exec(code);
-    if (!arr) {
-        return null;
-    }
-    var type = arr[1].replace("?", "");
-    var name = arr[2];
-
+/**Generate a typescript property */
+function generateTypescriptProperty(csType: string, name: string): string {
+    var type = csType.replace("?", "");
     var tsTypes: { [index: string]: string } = {
         'bool': 'boolean',
         'int': 'number',
@@ -29,10 +19,39 @@ function csAutoProperty(code: string): Match {
         'ubyte': 'number',
         'DateTime': 'Date',
     };
-
     var tsType = tsTypes[type] ? tsTypes[type] : type;
+    return name + ": " + tsType + ";";
+}
+
+function csFatArrowProperty(code: string): Match {
+    var patt = /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?(\S+)\s+(\S+)\s+=>.*;/;
+    var arr = patt.exec(code);
+    if (!arr) {
+        return null;
+    }
+    var type = arr[1];
+    var name = arr[2];
+
     return {
-        result: name + ": " + tsType + ";",
+        result: generateTypescriptProperty(type, name),
+        index: arr.index,
+        length: arr[0].length
+    };
+}
+
+/**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
+function csAutoProperty(code: string): Match {
+
+    var patt =
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?(\S+)\s+(\S+)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+    var arr = patt.exec(code);
+    if (!arr) {
+        return null;
+    }
+    var type = arr[1];
+    var name = arr[2];
+    return {
+        result: generateTypescriptProperty(type, name),
         index: arr.index,
         length: arr[0].length
     };
@@ -111,6 +130,7 @@ function findMatch(code: string, startIndex: number): Match {
 
     var functions: ((code: string) => Match)[] = [
         csAutoProperty,
+        csFatArrowProperty,
         csCommentSummary,
         csAttribute,
         csPublicMember
