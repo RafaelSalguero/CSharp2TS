@@ -42,9 +42,12 @@ function csFatArrowProperty(code: string): Match {
 /**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
 
-    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?);
+    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?)(?:\[\])*
+    //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
+    //test case = int
+    //test clase = List<bool>
     var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?)\s+(\S+)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?)(?:\[\])*\s+(\S+)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
 
     var arr = patt.exec(code);
     if (!arr) {
