@@ -5,6 +5,8 @@ import * as vscode from 'vscode';
 
 /**Generate a typescript property */
 function generateTypescriptProperty(csType: string, name: string): string {
+    //trim spaces:
+    csType = csType.trim();
     var type = csType.replace("?", "");
     var tsTypes: { [index: string]: string } = {
         'bool': 'boolean',
@@ -42,12 +44,13 @@ function csFatArrowProperty(code: string): Match {
 /**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
 
-    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?)(?:\[\])*
+    //identifier regex = [a-zA-Z0-9_]+
+    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[\])*)
     //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
     //test case = int
     //test clase = List<bool>
     var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?)(?:\[\])*\s+(\S+)\s+{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[\])*)\s+([a-zA-Z0-9_]+)\s*{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
 
     var arr = patt.exec(code);
     if (!arr) {
@@ -157,7 +160,7 @@ function findMatch(code: string, startIndex: number): Match {
 }
 
 /**Convert c# code to typescript code */
-function cs2ts(code: string): string {
+export function cs2ts(code: string): string {
     var ret = "";
     var lineArr: RegExpExecArray;
     var lastAddedLineJump = true;
