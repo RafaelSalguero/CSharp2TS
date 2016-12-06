@@ -137,7 +137,8 @@ class CsType {
         }
     }
 
-    private convertToTypescript(): string {
+    /**Convert this type to a typescript type */
+    convertToTypescript(): string {
         var arrayStr = "";
         for (var a of this.array) {
             arrayStr += "[";
@@ -146,7 +147,7 @@ class CsType {
             }
             arrayStr += "]";
         }
-        return this.convertToTypescript() + arrayStr;
+        return this.convertToTypescriptNoArray() + arrayStr;
     }
 }
 /**A c# array */
@@ -207,7 +208,7 @@ function parseArray(code: string): CsArray[] {
 }
 
 /**Parse a C# type, returns null if the given type could not be parsed */
-export function parseType(code: string): CsType | null {
+function parseType(code: string): CsType | null {
     //Remove all spaces:
     code = code.replace(" ", "");
 

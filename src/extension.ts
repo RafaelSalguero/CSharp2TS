@@ -25,32 +25,19 @@ function generateTypescriptProperty(csType: string, name: string): string {
     return name + ": " + tsType + ";";
 }
 
-function csFatArrowProperty(code: string): Match {
-    var patt = /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?(\S+)\s+(\S+)\s+=>.*;/;
-    var arr = patt.exec(code);
-    if (!arr) {
-        return null;
-    }
-    var type = arr[1];
-    var name = arr[2];
-
-    return {
-        result: generateTypescriptProperty(type, name),
-        index: arr.index,
-        length: arr[0].length
-    };
-}
-
-/**Convert a c# automatic property to a typescript property. Returns null if the string didn't match */
+/**Convert a c# automatic or fat arrow property to a typescript property. Returns null if the string didn't match */
 function csAutoProperty(code: string): Match {
 
-    //identifier regex = [a-zA-Z0-9_]+
-    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[,*\])*)
+    //identifier regex = ([a-zA-Z0-9_]+)
+    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)
     //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
     //test case = int
     //test clase = List<bool>
+    //get set = (?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})
+    //fat arrow = (?:=>.*;)
+    //get set or fat arrow = (?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})|(?:=>.*;))
     var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*(?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})|(?:=>.*;))/;
 
     var arr = patt.exec(code);
     if (!arr) {
@@ -138,7 +125,6 @@ function findMatch(code: string, startIndex: number): Match {
 
     var functions: ((code: string) => Match)[] = [
         csAutoProperty,
-        csFatArrowProperty,
         csCommentSummary,
         csAttribute,
         csPublicMember
