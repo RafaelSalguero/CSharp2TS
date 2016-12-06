@@ -25,6 +25,19 @@ suite("Extension Tests", () => {
         {
             inputs: ["MyClass<string[], OtherClass<object, C2>>[][] Generic { get; set; }"],
             output: "Generic: MyClass<string[], OtherClass<object, C2>>[][];"
+        },
+        {
+            inputs : ["string[] names { get; set;}", "string  [] names { get; set;}"],
+            output: "names: string[];"
+        },
+        ,
+        {
+            inputs : ["string[,][,,,] names { get; set;}"],
+            output: "names: string[,][,,,];"
+        },
+        {
+            inputs: ["List<string> List { get; set; }"],
+            output: "string[] List"
         }
     ];
 

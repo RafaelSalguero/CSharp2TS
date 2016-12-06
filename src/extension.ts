@@ -45,12 +45,12 @@ function csFatArrowProperty(code: string): Match {
 function csAutoProperty(code: string): Match {
 
     //identifier regex = [a-zA-Z0-9_]+
-    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[\])*)
+    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[,*\])*)
     //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
     //test case = int
     //test clase = List<bool>
     var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[\])*)\s+([a-zA-Z0-9_]+)\s*{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*{\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:((?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*}/;
 
     var arr = patt.exec(code);
     if (!arr) {
