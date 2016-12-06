@@ -13,37 +13,57 @@ import * as extension from '../src/extension';
 
 // Defines a1 Mocha test suite to group tests of similar k1ind together
 suite("Extension Tests", () => {
-    var testPairs: { inputs: string[], output: string }[] = [
-        {
-            inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age{get;set;}"],
-            output: "Age: number;"
-        },
-        {
-            inputs: ["MyClass<string, OtherClass<object, C2>> Generic { get; set; }"],
-            output: "Generic: MyClass<string, OtherClass<object, C2>>;"
-        },
-        {
-            inputs: ["MyClass<string[], OtherClass<object, C2>>[][] Generic { get; set; }"],
-            output: "Generic: MyClass<string[], OtherClass<object, C2>>[][];"
-        },
-        {
-            inputs : ["string[] names { get; set;}", "string  [] names { get; set;}"],
-            output: "names: string[];"
-        },
-        ,
-        {
-            inputs : ["string[,][,,,] names { get; set;}"],
-            output: "names: string[,][,,,];"
-        },
-        {
-            inputs: ["List<string> List { get; set; }"],
-            output: "string[] List"
-        }
-    ];
+
 
     test("Auto property test", () => {
-        for (var p of testPairs) {
-            for (var input of p.inputs) {
+        var testPairs: { inputs: string[], output: string }[] = [
+            {
+                inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age{get;set;}"],
+                output: "Age: number;"
+            },
+            {
+                inputs: ["MyClass<string, OtherClass<object, C2>> Generic { get; set; }"],
+                output: "Generic: MyClass<string, OtherClass<any, C2>>;"
+            },
+            {
+                inputs: ["MyClass<string[], OtherClass<object, C2>>[][] Generic { get; set; }"],
+                output: "Generic: MyClass<string[], OtherClass<any, C2>>[][];"
+            },
+            {
+                inputs: ["string[] names { get; set;}", "string  [] names { get; set;}", "string  [] names => rafa;"],
+                output: "names: string[];"
+            },
+            {
+                inputs: ["string[,][,,,] names { get; set;}"],
+                output: "names: string[,][,,,];"
+            },
+            {
+                inputs: ["List<string> List { get; set; }"],
+                output: "List: string[];"
+            },
+            {
+                inputs: ["int ? PropName { get; set; }"],
+                output: "PropName: number | null;"
+            },
+            {
+                inputs: ["int ? PropName { get; set; }"],
+                output: "PropName: number | null;"
+            },
+            {
+                inputs: ["Tuple<int, bool[]> PropName { get; set; }", "Tuple<int, List<bool>> PropName { get; set; }"],
+                output: "PropName: { Item1: number, Item2: boolean[] };"
+            },
+            {
+                inputs: ["Dictionary<string, Tuple<int, bool?, string>> PropName { get; set; }"],
+                output: "PropName: { [key: string]: { Item1: number, Item2: boolean | null, Item3: string } };"
+            },
+            {
+                inputs: ["Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName { get; set; }", "Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName => hello;"],
+                output: "PropName: { Item1: number, Item2: { [key: any]: { Item1: number, Item2: boolean | null }[] } };"
+            },
+        ];
+        for (const p of testPairs) {
+            for (const input of p.inputs) {
                 assert.equal(extension.cs2ts(input), p.output, input);
             }
         }

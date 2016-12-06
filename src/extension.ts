@@ -2,26 +2,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-
+import * as types from './types';
 /**Generate a typescript property */
 function generateTypescriptProperty(csType: string, name: string): string {
     //trim spaces:
-    csType = csType.trim();
-    var type = csType.replace("?", "");
-    var tsTypes: { [index: string]: string } = {
-        'bool': 'boolean',
-        'int': 'number',
-        'float': 'number',
-        'decimal': 'number',
-        'long': 'number',
-        'byte': 'number',
-        'short': 'number',
-        'ushort': 'number',
-        'ulong': 'number',
-        'ubyte': 'number',
-        'DateTime': 'Date',
-    };
-    var tsType = tsTypes[type] ? tsTypes[type] : type;
+    var tsType = types.parseType(csType).convertToTypescript();
     return name + ": " + tsType + ";";
 }
 

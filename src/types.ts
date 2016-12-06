@@ -20,7 +20,7 @@ enum CsTypeCategory {
 }
 
 /**A c# type */
-class CsType {
+export class CsType {
     constructor(name: string, generics: CsType[], array: CsArray[]) {
         this.name = name;
         this.generics = generics;
@@ -93,14 +93,14 @@ class CsType {
 
             case CsTypeCategory.Dictionary: {
                 if (this.generics.length == 2) {
-                    return `{ [key: ${this.generics[0].convertToTypescript()} ] : ${this.generics[1].convertToTypescript()} }`;
+                    return `{ [key: ${this.generics[0].convertToTypescript()}]: ${this.generics[1].convertToTypescript()} }`;
                 } else {
                     throw "";
                 }
             }
             case CsTypeCategory.Nullable: {
                 if (this.generics.length == 1) {
-                    return `(${this.generics[0].convertToTypescript()} | null)`;
+                    return `${this.generics[0].convertToTypescript()} | null`;
                 }
                 else {
                     throw "";
@@ -124,7 +124,7 @@ class CsType {
                 return "Date";
             }
             case CsTypeCategory.Any: {
-                return "Any";
+                return "any";
             }
             case CsTypeCategory.Other: {
                 if (this.generics.length > 0) {
@@ -208,7 +208,7 @@ function parseArray(code: string): CsArray[] {
 }
 
 /**Parse a C# type, returns null if the given type could not be parsed */
-function parseType(code: string): CsType | null {
+export function parseType(code: string): CsType | null {
     //Remove all spaces:
     code = code.replace(" ", "");
 
