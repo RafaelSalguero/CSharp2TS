@@ -93,7 +93,9 @@ export class CsType {
 
             case CsTypeCategory.Dictionary: {
                 if (this.generics.length == 2) {
-                    return `{ [key: ${this.generics[0].convertToTypescript()}]: ${this.generics[1].convertToTypescript()} }`;
+                    let keyType = (this.generics[0].category == CsTypeCategory.Number) ? "number" : "string"; 
+                    
+                    return `{ [key: ${keyType}]: ${this.generics[1].convertToTypescript()} }`;
                 } else {
                     throw "";
                 }

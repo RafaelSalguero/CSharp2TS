@@ -59,7 +59,7 @@ suite("Extension Tests", () => {
             },
             {
                 inputs: ["Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName { get; set; }", "Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName => hello;"],
-                output: "PropName: { Item1: number, Item2: { [key: any]: { Item1: number, Item2: boolean | null }[] } };"
+                output: "PropName: { Item1: number, Item2: { [key: string]: { Item1: number, Item2: boolean | null }[] } };"
             },
         ];
         for (const p of testPairs) {
