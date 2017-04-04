@@ -50,3 +50,6 @@ Supports:
 - Convert C# `Dictionary<string, T>` to `{ [key: string]: T }`
 - Convert C# `Tuple<TA, TB, TC>` to `{ Item1: TA, Item2: TB, Item3: TC }`
 - Convert C# `List<T>` to `T[]`
+
+### 0.0.11
+- Bug fix: Getter only properties where not correctly parsed
