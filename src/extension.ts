@@ -18,11 +18,11 @@ function csAutoProperty(code: string): Match {
     //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
     //test case = int
     //test clase = List<bool>
-    //get set = (?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})
+    //get set = (?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})
     //fat arrow = (?:=>.*;)
-    //get set or fat arrow = (?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})|(?:=>.*;))
+    //get set or fat arrow = (?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})|(?:=>.*;))
     var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*(?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*})|(?:=>.*;))/;
+        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*(?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})|(?:=>.*;))/;
 
     var arr = patt.exec(code);
     if (!arr) {
