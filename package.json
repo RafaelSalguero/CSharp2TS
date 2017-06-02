@@ -18,7 +18,18 @@
         "commands": [{
             "command": "extension.cs2ts",
             "title": "Convert C# to TypeScript"
-        }]
+        }],
+        "configuration": {
+            "type": "object",
+            "title": "CSharp2TS configuration",
+            "properties": {
+                "csharp2ts.propertiesToCamelCase": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "True for camelCase, False for PascalCase."
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
