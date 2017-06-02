@@ -53,3 +53,6 @@ Supports:
 
 ### 0.0.11
 - Bug fix: Getter only properties where not correctly parsed
+
+### 0.0.12
+- Support for cammelCase/PascalCase
