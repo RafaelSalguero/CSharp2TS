@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.12",
+    "version": "0.0.13",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
