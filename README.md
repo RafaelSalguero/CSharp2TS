@@ -13,6 +13,17 @@ Supports:
 - Remove attributes
 - Detect common types such as int, long, ... 
 
+## Settings
+On your workspace or user `settings.json`:
+
+```js
+// Place your settings in this file to overwrite default and user settings.
+{
+    //True for camelCase, false for preserving original name. Default is true
+    "csharp2ts.propertiesToCamelCase": true
+}
+```
+
 ## Release Notes
 ### 0.0.0
 
@@ -55,4 +66,7 @@ Supports:
 - Bug fix: Getter only properties where not correctly parsed
 
 ### 0.0.12
-- Support for cammelCase/PascalCase
+- Support for cammelCase/PascalCase. Configurable with the `"csharp2ts.propertiesToCamelCase"` setting
+
+### 0.0.13
+- Documentation for settings added
