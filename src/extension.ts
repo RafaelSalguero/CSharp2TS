@@ -7,8 +7,9 @@ import * as types from './types';
 function generateTypescriptProperty(csType: string, name: string): string {
     //trim spaces:
     var tsType = types.parseType(csType).convertToTypescript();
-    var isCamelCase = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase");
-    if (isCamelCase) {
+    var isCamelCaseEnabled = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase");
+    var isAbbreviation = name.toUpperCase() == name;
+    if (isCamelCaseEnabled && !isAbbreviation) {
         name = name[0].toLowerCase() + name.substr(1);
     }
     return name + ": " + tsType + ";";
@@ -96,7 +97,8 @@ function csPublicMember(code: string): Match {
     var arr = patt.exec(code);
 
     var tsMembers: { [index: string]: string } = {
-        'class': 'interface'
+        'class': 'interface',
+        'struct': 'interface'
     };
 
     if (arr == null) return null;

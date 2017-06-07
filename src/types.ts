@@ -13,6 +13,8 @@ enum CsTypeCategory {
     Number,
     /**A date type */
     Date,
+    /**A string type */
+    String,
     /**Any type */
     Any,
     /**Unidentified type */
@@ -56,6 +58,7 @@ export class CsType {
             'ulong', "UInt64", "System.UInt64"
         ];
         var dates = ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"];
+        var strings = ["Guid"];
         var anys = ["object", "System.Object", "dynamic"];
         if (enumerables.indexOf(this.name) != -1 && this.generics.length <= 1) {
             return CsTypeCategory.Enumerable;
@@ -71,6 +74,8 @@ export class CsType {
             return CsTypeCategory.Number;
         } else if (dates.indexOf(this.name) != -1 && this.generics.length == 0) {
             return CsTypeCategory.Date;
+        } else if (strings.indexOf(this.name) != -1) {
+            return CsTypeCategory.String;
         } else if (anys.indexOf(this.name) != -1 && this.generics.length == 0) {
             return CsTypeCategory.Any;
         } else {
@@ -93,8 +98,8 @@ export class CsType {
 
             case CsTypeCategory.Dictionary: {
                 if (this.generics.length == 2) {
-                    let keyType = (this.generics[0].category == CsTypeCategory.Number) ? "number" : "string"; 
-                    
+                    let keyType = (this.generics[0].category == CsTypeCategory.Number) ? "number" : "string";
+
                     return `{ [key: ${keyType}]: ${this.generics[1].convertToTypescript()} }`;
                 } else {
                     throw "";
@@ -124,6 +129,9 @@ export class CsType {
             }
             case CsTypeCategory.Date: {
                 return "Date";
+            }
+            case CsTypeCategory.String: {
+                return "string";
             }
             case CsTypeCategory.Any: {
                 return "any";
