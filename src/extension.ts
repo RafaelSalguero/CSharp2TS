@@ -96,7 +96,8 @@ function csPublicMember(code: string): Match {
     var arr = patt.exec(code);
 
     var tsMembers: { [index: string]: string } = {
-        'class': 'interface'
+        'class': 'interface',
+        'struct': 'interface'
     };
 
     if (arr == null) return null;
