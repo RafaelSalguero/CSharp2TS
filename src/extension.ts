@@ -8,6 +8,7 @@ function generateTypescriptProperty(csType: string, name: string): string {
     //trim spaces:
     var tsType = types.parseType(csType).convertToTypescript();
     name = getTypescriptPropertyName(name);
+    tsType = trimMemberName(tsType);
 
     return name + ": " + tsType + ";";
 }
@@ -15,6 +16,7 @@ function generateTypescriptProperty(csType: string, name: string): string {
 function getTypescriptPropertyName(name: string) {
     var isCamelCaseEnabled = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase");
     var isAbbreviation = name.toUpperCase() == name;
+    name = trimMemberName(name);
     if (isCamelCaseEnabled && !isAbbreviation) {
         return name[0].toLowerCase() + name.substr(1);
     }
@@ -109,12 +111,55 @@ function csPublicMember(code: string): Match {
     };
 
     if (arr == null) return null;
-    var tsMember = tsMembers[arr[1]]
+    var tsMember = tsMembers[arr[1]];
+    var name = trimMemberName(arr[2]);
     return {
-        result: `export ${tsMember || arr[1]} ${arr[2]} {`,
+        result: `export ${tsMember || arr[1]} ${name} {`,
         index: arr.index,
         length: arr[0].length
     };
+}
+
+function trimMemberName(name: string) {
+    var trimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("trimPostfixes") as string[] | string | null;
+    if (!trimPostfixes)
+        return name;
+
+    name = name.trim();
+
+    if (typeof trimPostfixes === "string")
+        return trimNameWithArrayOfPostfixes(name, [trimPostfixes]);
+
+    return trimNameWithArrayOfPostfixes(name, trimPostfixes);
+}
+
+function trimNameWithArrayOfPostfixes(name: string, postfixes: string[]): string {
+    var trimRecursive = vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean;
+
+    var trimmed = true;
+    do {
+        trimmed = false;
+
+        for (let postfix of postfixes) {
+            if (!name.endsWith(postfix))
+                continue;
+
+            name = trimEnd(name, postfix);
+            if (!trimRecursive)
+                return name;
+
+            trimmed = true;
+        }
+    } while (trimmed); // trim recursive until no more occurrences will be found
+
+    return name;
+}
+
+function trimEnd(text: string, postfix: string) {
+    if (text.endsWith(postfix)) {
+        return text.substr(0, text.length - postfix.length);
+    }
+    return text;
 }
 
 /**Find the next match */
