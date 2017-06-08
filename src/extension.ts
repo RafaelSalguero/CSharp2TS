@@ -7,12 +7,19 @@ import * as types from './types';
 function generateTypescriptProperty(csType: string, name: string): string {
     //trim spaces:
     var tsType = types.parseType(csType).convertToTypescript();
+    name = getTypescriptPropertyName(name);
+
+    return name + ": " + tsType + ";";
+}
+
+function getTypescriptPropertyName(name: string) {
     var isCamelCaseEnabled = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase");
     var isAbbreviation = name.toUpperCase() == name;
     if (isCamelCaseEnabled && !isAbbreviation) {
-        name = name[0].toLowerCase() + name.substr(1);
+        return name[0].toLowerCase() + name.substr(1);
     }
-    return name + ": " + tsType + ";";
+
+    return name;
 }
 
 /**Convert a c# automatic or fat arrow property to a typescript property. Returns null if the string didn't match */
