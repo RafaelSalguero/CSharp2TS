@@ -27,6 +27,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "True for camelCase, false for preserving original name."
+                },
+                "csharp2ts.trimPostfixes": {
+                    "type": ["array", "string"],
+                    "default": "",
+                    "description": "Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive."
+                },
+                "csharp2ts.recursiveTrimPostfixes": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)"
                 }
             }
         }

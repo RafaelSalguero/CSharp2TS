@@ -14,8 +14,13 @@ import * as extension from '../src/extension';
 // Defines a1 Mocha test suite to group tests of similar k1ind together
 suite("Extension Tests", () => {
 
-
     test("Auto property test", () => {
+        var config: extension.ExtensionConfig = {
+            propertiesToCamelCase: false,
+            recursiveTrimPostfixes: false,
+            trimPostfixes: []
+        };
+
         var testPairs: { inputs: string[], output: string }[] = [
             {
                 inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age{get;set;}"],
@@ -64,13 +69,8 @@ suite("Extension Tests", () => {
         ];
         for (const p of testPairs) {
             for (const input of p.inputs) {
-                assert.equal(extension.cs2ts(input), p.output, input);
+                assert.equal(extension.cs2ts(input, config), p.output, input);
             }
         }
-    });
-    // Defines a Mocha unit test
-    test("Something 1", () => {
-        assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
     });
 });
