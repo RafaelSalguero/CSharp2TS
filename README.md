@@ -20,7 +20,7 @@ On your workspace or user `settings.json`:
 // Place your settings in this file to overwrite default and user settings.
 {
     //True for camelCase, false for preserving original name. Default is true
-    "csharp2ts.propertiesToCamelCase": true,
+    "csharp2ts.propertiesToCamelCase": false,
     //Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive.
     "csharp2ts.trimPostfixes": "",
     //Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)
@@ -77,3 +77,6 @@ On your workspace or user `settings.json`:
 
 ### 0.0.14
 - new `trimPostfixes` and `recursiveTrimPostfixes` config. Thanks amadare42
+
+### 0.0.15
+- `csharp2ts.propertiesToCamelCase` is set to `false` by default

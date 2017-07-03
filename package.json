@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.14",
+    "version": "0.0.15",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
@@ -25,7 +25,7 @@
             "properties": {
                 "csharp2ts.propertiesToCamelCase": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
                     "description": "True for camelCase, false for preserving original name."
                 },
                 "csharp2ts.trimPostfixes": {
