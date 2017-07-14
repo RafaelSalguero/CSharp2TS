@@ -18,7 +18,8 @@ suite("Extension Tests", () => {
         var config: extension.ExtensionConfig = {
             propertiesToCamelCase: false,
             recursiveTrimPostfixes: false,
-            trimPostfixes: []
+            trimPostfixes: [],
+            ignoreInitializer: true
         };
 
         var testPairs: { inputs: string[], output: string }[] = [

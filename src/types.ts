@@ -49,6 +49,7 @@ export class CsType {
         var numbers = [
             'int', "Int32", "System.Int32",
             'float', "Single", "System.Single",
+            "double", "Double", "System.Double",
             'decimal', "Decimal", "System.Decimal",
             'long', "Int64", "System.Int64",
             'byte', "Byte", "System.Byte",
@@ -222,22 +223,27 @@ export function parseType(code: string): CsType | null {
     //Remove all spaces:
     code = code.replace(" ", "");
 
+    const patt = /([a-zA-Z0-9_]+)\s*(?:<(.*)>)?\s*(\?)?\s*(\[[,\[\]]*\])*/;
 
-    var patt = /([a-zA-Z0-9_]+)\s*(?:<(.*)>)?\s*(\?)?\s*(\[[,\[\]]*\])*/;
-
-    var arr = patt.exec(code);
+    const arr = patt.exec(code);
     if (!arr) {
         return null;
     }
 
     //Pattern groups:
-    var name = arr[1];
-    var genericsStr = splitCommas(arr[2] || "");
-    var nullable = arr[3] == "?";
-    var arraysStr = arr[4] || "";
+    const name = arr[1];
+    const genericsStr = splitCommas(arr[2] || "");
+    const nullable = arr[3] == "?";
+    const arraysStr = arr[4] || "";
 
-    var arrays = parseArray(arraysStr);
-    var generics = genericsStr.map(x => parseType(x));
+    const arrays = parseArray(arraysStr);
+    const genericsOrNull = genericsStr.map(x => parseType(x));
+    const genericParseError = genericsOrNull.filter(x => x == null).length > 0;
+
+    if (genericParseError) return null;
+    const generics = genericsOrNull.map(x => x!);
+
+
     if (nullable) {
         var underlyingType = new CsType(name, generics, []);
         return new CsType(CsType.nullable, [underlyingType], arrays);

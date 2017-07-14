@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.15",
+    "version": "0.0.16",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
@@ -37,6 +37,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)"
+                },
+                "csharp2ts.ignoreInitializer": {
+                    "type":"boolean",
+                    "default": true,
+                    "description": "Ignore property initializer"
                 }
             }
         }

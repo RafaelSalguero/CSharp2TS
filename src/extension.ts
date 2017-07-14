@@ -3,14 +3,26 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import * as types from './types';
-/**Generate a typescript property */
-function generateTypescriptProperty(csType: string, name: string, config: ExtensionConfig): string {
-    //trim spaces:
-    var tsType = types.parseType(csType).convertToTypescript();
-    name = getTypescriptPropertyName(name, config);
-    tsType = trimMemberName(tsType, config);
 
-    return name + ": " + tsType + ";";
+import { parseProperty, CSharpProperty } from "./parse";
+
+class Test {
+    name: string = "rafa";
+}
+/**Generate a typescript property */
+function generateTypescriptProperty(prop: CSharpProperty, config: ExtensionConfig): string {
+    //trim spaces:
+    const parseType = types.parseType(prop.type);
+    const tsType =
+        trimMemberName(
+            parseType ? parseType.convertToTypescript() : prop.type,
+            config);
+    const name = getTypescriptPropertyName(prop.name, config);
+    const printInitializer = !config.ignoreInitializer && (!!prop.initializer);
+    
+    return printInitializer ?
+        (name + ": " + tsType + " = " + prop.initializer + ";") :
+        (name + ": " + tsType + ";");
 }
 
 function getTypescriptPropertyName(name: string, config: ExtensionConfig) {
@@ -24,34 +36,21 @@ function getTypescriptPropertyName(name: string, config: ExtensionConfig) {
 }
 
 /**Convert a c# automatic or fat arrow property to a typescript property. Returns null if the string didn't match */
-function csAutoProperty(code: string, config: ExtensionConfig): Match {
-
-    //identifier regex = ([a-zA-Z0-9_]+)
-    //typeRegex = ((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)
-    //test case = Tuple<List<int[], Tuple<bool, int[]>>[][], bool[]>[]
-    //test case = int
-    //test clase = List<bool>
-    //get set = (?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})
-    //fat arrow = (?:=>.*;)
-    //get set or fat arrow = (?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})|(?:=>.*;))
-    var patt =
-        /(?:public\s+)?(?:(?:(?:new)|(?:override))\s+)?((?:[a-zA-Z0-9_]+)\s*(?:<.*>)?\s*\??(?:\[,*\])*)\s+([a-zA-Z0-9_]+)\s*(?:(?:{\s*(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*get\s*;\s*(?:(?:(?:(?:internal)|(?:public)|(?:private)|(?:protected)))?\s*set;\s*)?})|(?:=>.*;))/;
-
-    var arr = patt.exec(code);
-    if (!arr) {
+function csAutoProperty(code: string, config: ExtensionConfig): MatchResult {
+    const parse = parseProperty(code);
+    if (!parse) {
         return null;
     }
-    var type = arr[1];
-    var name = arr[2];
-    return {
-        result: generateTypescriptProperty(type, name, config),
-        index: arr.index,
-        length: arr[0].length
-    };
-
+    else {
+        return {
+            result: generateTypescriptProperty(parse.data, config),
+            index: parse.index,
+            length: parse.length
+        };
+    }
 }
 
-function csAttribute(code: string, config: ExtensionConfig): Match {
+function csAttribute(code: string, config: ExtensionConfig): MatchResult {
     var patt = /[ \t]*\[\S*\][ \t]*\r?\n/;
     var arr = patt.exec(code);
     if (arr == null) return null;
@@ -72,7 +71,9 @@ interface Match {
     length: number;
 }
 
-function csCommentSummary(code: string, config: ExtensionConfig): Match {
+type MatchResult = Match | null;
+
+function csCommentSummary(code: string, config: ExtensionConfig): MatchResult {
     var patt = /\/\/\/ <summary>\r?\n((?:\s*\/\/\/.*\r?\n?)*) <\/summary>/;
     var arr = patt.exec(code);
     if (arr == null) return null;
@@ -80,7 +81,7 @@ function csCommentSummary(code: string, config: ExtensionConfig): Match {
     //Split summary lines:
     var lines = arr[1];
     var separatorPattern = /([ \t]*)\/\/\/\s?(.+)/g;
-    var lineArr: RegExpExecArray;
+    var lineArr: RegExpExecArray | null;
     var ret = "/*";
     var first = true;
     while ((lineArr = separatorPattern.exec(arr[1])) != null) {
@@ -100,7 +101,7 @@ function csCommentSummary(code: string, config: ExtensionConfig): Match {
     };
 }
 
-function csPublicMember(code: string, config: ExtensionConfig): Match {
+function csPublicMember(code: string, config: ExtensionConfig): MatchResult {
     var patt = /public\s*(?:(?:abstract)|(?:sealed))?(\S*)\s+(.*)\s*{/;
     var arr = patt.exec(code);
 
@@ -119,12 +120,12 @@ function csPublicMember(code: string, config: ExtensionConfig): Match {
     };
 }
 
-function trimMemberName(name: string, config: ExtensionConfig): string {    
+function trimMemberName(name: string, config: ExtensionConfig): string {
     name = name.trim();
 
     var postfixes = config.trimPostfixes;
     if (!postfixes)
-        return name;        
+        return name;
     var trimRecursive = config.recursiveTrimPostfixes;
 
     var trimmed = true;
@@ -154,17 +155,17 @@ function trimEnd(text: string, postfix: string) {
 }
 
 /**Find the next match */
-function findMatch(code: string, startIndex: number, config: ExtensionConfig): Match {
+function findMatch(code: string, startIndex: number, config: ExtensionConfig): MatchResult {
     code = code.substr(startIndex);
 
-    var functions: ((code: string, config: ExtensionConfig) => Match)[] = [
+    var functions: ((code: string, config: ExtensionConfig) => MatchResult)[] = [
         csAutoProperty,
         csCommentSummary,
         csAttribute,
         csPublicMember
     ];
 
-    var firstMatch: Match = null;
+    var firstMatch: MatchResult = null;
     for (let i = 0; i < functions.length; i++) {
         var match = functions[i](code, config);
         if (match != null && (firstMatch == null || match.index < firstMatch.index)) {
@@ -239,21 +240,23 @@ export function activate(context: vscode.ExtensionContext) {
 
 function getConfiguration(): ExtensionConfig {
 
-    var rawTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("trimPostfixes") as string|string[];
-    var trimPostfixes:string[] = [];
-    if (typeof rawTrimPostfixes == "string"){
+    var rawTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("trimPostfixes") as string | string[];
+    var trimPostfixes: string[] = [];
+    if (typeof rawTrimPostfixes == "string") {
         trimPostfixes = [rawTrimPostfixes];
     } else {
         trimPostfixes = rawTrimPostfixes;
     }
 
     var propertiesToCamelCase = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase") as boolean;
-    var recursiveTrimPostfixes =  vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean
+    var recursiveTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean
+    var ignoreInitializer = vscode.workspace.getConfiguration('csharp2ts').get("ignoreInitializer") as boolean
 
     return {
         propertiesToCamelCase,
         trimPostfixes,
         recursiveTrimPostfixes,
+        ignoreInitializer
     };
 }
 
@@ -266,4 +269,5 @@ export interface ExtensionConfig {
     propertiesToCamelCase: boolean;
     trimPostfixes: string[];
     recursiveTrimPostfixes: boolean;
+    ignoreInitializer: boolean;
 }

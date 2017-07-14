@@ -24,7 +24,9 @@ On your workspace or user `settings.json`:
     //Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive.
     "csharp2ts.trimPostfixes": "",
     //Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)
-    "csharp2ts.recursiveTrimPostfixes": false
+    "csharp2ts.recursiveTrimPostfixes": false,
+    //Ignore property initializer    
+    "csharp2ts.ignoreInitializer": true
 }
 ```
 
@@ -80,3 +82,8 @@ On your workspace or user `settings.json`:
 
 ### 0.0.15
 - `csharp2ts.propertiesToCamelCase` is set to `false` by default
+
+### 0.0.16
+- Bug fix: Property initializer correctly parsed
+- New `csharp2ts.ignoreInitializer` config
+- `double` correctly parsed
