@@ -27,6 +27,12 @@ On your workspace or user `settings.json`:
     "csharp2ts.recursiveTrimPostfixes": false,
     //Ignore property initializer    
     "csharp2ts.ignoreInitializer": true
+    //True to remove method bodies, false to preserve the body as-is
+     "csharp2ts.removeMethodBodies": true,
+     //True to remove class constructors, false to treat then like any other method
+     "csharp2ts.removeConstructors": false,
+     //'signature' to emit a method signature, 'lambda' to emit a lambda function
+     "csharp2ts.methodStyle": 'signature'
 }
 ```
 
@@ -87,3 +93,10 @@ On your workspace or user `settings.json`:
 - Bug fix: Property initializer correctly parsed
 - New `csharp2ts.ignoreInitializer` config
 - `double` correctly parsed
+
+### 0.0.17
+- Support method and constructor signature conversion and body removing
+- Emit method signature or method empty implementation, see the `csharp2ts.methodStyle` configuration
+- Added a C# XML Docs parser, improving generated JSDoc
+- Improved code base
+- Support for the `Task` tyoe

@@ -44,6 +44,9 @@ interface XmlDocBlock {
     items: XmlTag[];
 }
 
+export function generateSimpleJsDoc(indent: string | undefined, content: string) {
+    return indent + "/**" + content + " */";
+}
 
 /**
  * Generate a JS Doc
@@ -51,6 +54,32 @@ interface XmlDocBlock {
  * @param value 
  */
 export function generateJsDoc(value: XmlDocBlock) {
+    const isSimpleComment = (() => {
+        if (value.items.length == 3) {
+            const isSummaryStart = (x: XmlTag): x is XmlNodeStart => x.type == "start" && x.tag == "summary";
+            const isSummaryEnd = (x: XmlTag): x is XmlNodeEnd => x.type == "end" && x.tag == "summary";
+
+            const start = value.items[0];
+            const content = value.items[1];
+            const end = value.items[2];
+
+            if (isSummaryStart(start) && isSummaryEnd(end) && content.type == "docStart") {
+                return {
+                    simple: true,
+                    indent: start.space,
+                    content: content.content
+                }
+            } else {
+                return false;
+            }
+        }
+
+    })();
+
+    if(isSimpleComment) {
+        return generateSimpleJsDoc(isSimpleComment.indent, isSimpleComment.content);
+    }
+
     const items = value.items;
     if (items.length == 0) return "";
 
