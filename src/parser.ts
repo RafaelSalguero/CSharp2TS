@@ -1,7 +1,7 @@
 import { ParseResult } from "./parse";
 
 export function ParseRegex<T>(text: string, regex: RegExp, parse: (data: string[]) => T): ParseResult<T> | null {
-    const result = regex.exec(text);
+    const result = new RegExp(regex, "g").exec(text);
     if (result == null) {
         return null;
     } else {
@@ -18,7 +18,7 @@ export interface TypedParserFunction<TName extends string, TData> {
     func: (code: string) => ParseResult<TData> | null;
 }
 
-export type ParserFunction<TData> = (code: string)  => ParseResult<TData> | null;
+export type ParserFunction<TData> = (code: string) => ParseResult<TData> | null;
 
 export interface MultiMatchResult<TName, TData> {
     type: TName;
@@ -37,7 +37,7 @@ export function firstMatch<TData>(code: string, functions: ParserFunction<TData>
     return firstMatch;
 }
 
-function subStrMatch<T>(match: ParseResult<T>, index: number) : ParseResult<T>  {
+function subStrMatch<T>(match: ParseResult<T>, index: number): ParseResult<T> {
     return {
         data: match.data,
         index: match.index + index,

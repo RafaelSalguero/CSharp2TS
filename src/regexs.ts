@@ -4,11 +4,12 @@ import {
 
 export const identifier = /[a-zA-Z0-9_]+/;
 export const space = /\s+/;
-export const spaceOrLine = /(?:\s|\n)+/;
-export const spaceOrLineOptional = /(?:\s|\n)*/;
+export const spaceOrLine = /(?:\s|\n|\r)+/;
+export const spaceOrLineOptional = /(?:\s|\n|\r)*/;
 export const spaceOptional = /\s*/;
-export const anyChar = /(?:.|\n)/;
-
+export const anyChar = /(?:.|\n|\r)/;
+export const spaceNotLine = /[ \t]/;
+export const lineJump =  /(?:\r|\n|(?:\r\n)|(?:\n\r))/;
 
 /**Regex que encaga con un tipo */
 export const type = (() => {

@@ -27,22 +27,106 @@ interface XmlEmptyNode {
     space: string | undefined;
 }
 
-interface CSharpDocStart {
+interface XmlDocContentLine {
     type: "docStart",
     space: string;
+    content: string;
 };
 
-type XmlTag = XmlNodeStart | XmlNodeEnd | XmlEmptyNode;
-type CSharpDoc = XmlTag | CSharpDocStart | undefined;
-const SummaryBlockRegex = (() => {
-    const comment = str("///");
-    const line = seq(comment, /.*/);
-    const lineJump = /\n\s*/;
-    const nextLine = seq(lineJump, line);
-    const block = seq(line, zeroOrMore(nextLine));
+interface XmlContent {
+    type: "content",
+    text: string;
+    space: undefined;
+}
 
-    return block;
-})();
+type XmlTag = XmlNodeStart | XmlNodeEnd | XmlEmptyNode | XmlDocContentLine | XmlContent;
+interface XmlDocBlock {
+    items: XmlTag[];
+}
+
+
+/**
+ * Generate a JS Doc
+ * @param code 
+ * @param value 
+ */
+export function generateJsDoc(value: XmlDocBlock) {
+    const items = value.items;
+    if (items.length == 0) return "";
+
+    const text = items.map((x, i): string => {
+        const startChar = i == 0 ? "/**" : " * ";
+        switch (x.type) {
+            case "start":
+            case "selfClosing": {
+                const char = x.space != null ? startChar : "";
+                const begin = `${x.space || ""}${char}`;
+                if (x.tag == "summary") {
+                    return begin;
+                } else {
+                    return `${begin}@${x.tag} ${x.attributes.map(x => x.value).join("")} `
+                }
+            }
+            case "end":
+                return ""
+            case "docStart":
+                return `${x.space}${startChar}${x.content}`;
+            case "emptyNode":
+                return "";
+            case "content":
+                return x.text;
+            default:
+                return x;
+        }
+    });
+
+    const withSpaces = items.filter(x => x && x.space != null).map(x => x!.space);
+    const lastSpace = withSpaces[withSpaces.length - 1] || " ";
+
+    const ret = text.join("") + lastSpace + " */";
+    return ret;
+}
+
+/**Parse a C# XML Doc */
+export function parseXmlDocBlock(code: string): ParseResult<XmlDocBlock> | null {
+    const summaryBlockPatt = (() => {
+        const comment = str("///");
+        const line = seq(comment, /.*/);
+        const lineJump = seq(regexs.lineJump, /\s*/);
+        const firstLine = seq(/[ \t]*/, line);
+        const nextLine = seq(lineJump, line);
+        const block = seq(firstLine, zeroOrMore(nextLine));
+
+        return block;
+    })();
+
+    const parseNodeTag = (() => {
+        const parsers = [
+            parseEmptyNode,
+            parseNodeStart,
+            parseSelfClosingNode,
+            parseNodeEnd,
+            parseDocStart
+        ];
+        return (code: string) => firstMatch<XmlTag>(code, parsers);
+    })();
+
+    const parseXml = (code: string) => allMatches(code, parseNodeTag);
+    const toXmlContent = (code: string, x: ParseResult<undefined>): XmlContent => {
+        return {
+            space: undefined,
+            text: code.substr(x.index, x.length),
+            type: "content"
+        };
+    };
+
+    const r = ParseRegex<XmlDocBlock>(code, cap(summaryBlockPatt), match => ({
+        items: parseXml(match[1]).map(x => x.data ? x.data : toXmlContent(match[1], x as ParseResult<undefined>))
+    }));
+
+    return r;
+}
+
 
 const attribRegex = (captureGroups: boolean) => {
     const capFunc = captureGroups ? cap : x => x;
@@ -64,7 +148,7 @@ function parseAttributes(code: string): XmlAttribute[] {
 }
 
 /**Encaja con el inicio de una linea de comentarios y captura la secuencia de espacios anterior a esta, incluyendo el salto de linea si es que hay */
-const commentLineBegin = seq(cap(seq(optional(/\n/), regexs.spaceOptional)), str("///"), regexs.spaceOptional);
+const commentLineBegin = seq(cap(seq(optional(regexs.lineJump), regexs.spaceOptional)), str("///"), regexs.spaceOptional);
 
 const { parseNodeStart, parseSelfClosingNode } = (() => {
     const attrib = attribRegex(false);
@@ -108,82 +192,23 @@ function parseEmptyNode(code: string): ParseResult<XmlEmptyNode> | null {
     }));
 }
 
-function parseDocStart(code: string): ParseResult<CSharpDocStart> | null {
-    const patt = commentLineBegin;
-    return ParseRegex<CSharpDocStart>(code, patt, match => ({
+function parseDocStart(code: string): ParseResult<XmlDocContentLine> | null {
+    const patt = seq(commentLineBegin, cap(zeroOrMore(/[^<\n\r]/)));
+    return ParseRegex<XmlDocContentLine>(code, patt, match => ({
         type: "docStart",
-        space: match[1]
+        space: match[1],
+        content: match[2]
     }));
-
 }
-const text =
-    `
-    /// <summary>
+
+const text = `
+   	 /// <summary>
     /// Obtiene todos los archivo ticket de un ticket, 
     /// sin incluir su contenido <see cref="hola"/>
     /// Hola
     /// </summary>
     /// <param name="idTicket"></param>
     /// <param name="otro">Que rollo</param>
-    /// <returns></returns>`;
-
-const text2 = `</param>`;
-type NodeType = "nodeStart" | "nodeEnd" | "selfClosingNode";
-const parseNodeTag = (() => {
-
-    const parsers = [
-        parseEmptyNode,
-        parseNodeStart,
-        parseSelfClosingNode,
-        parseNodeEnd,
-        parseDocStart
-    ];
-    return (code: string) => firstMatch<CSharpDoc>(code, parsers);
-})();
-
-const parseXml = (code: string) => allMatches(code, parseNodeTag);
-
-/**
- * 
- * @param code 
- * @param value 
- */
-function generate(code: string, value: ParseResult<CSharpDoc>[]) {
-    if (value.length == 0) return "";
-
-    const text = value.map((x, i): string => {
-        const startChar = i == 0 ? "/**" : " * ";
-        if (x.data) {
-            switch (x.data.type) {
-                case "start":
-                case "selfClosing": {
-                    const char = x.data.space != null ? startChar : "";
-                    const begin = `${x.data.space || ""}${char}`;
-                    if (x.data.tag == "summary") {
-                        return begin;
-                    } else {
-                        return `${begin}@${x.data.tag} ${x.data.attributes.map(x => x.value).join("")}`
-                    }
-                }
-                case "end":
-                    return ""
-                case "docStart":
-                    return `${x.data.space}${startChar}`;
-                case "emptyNode":
-                    return "";
-                default:
-                    return x.data;
-            }
-        } else {
-            return code.substr(x.index, x.length);
-        }
-    });
-
-    const withSpaces = value.filter(x => x.data && x.data.space != null).map(x=> x.data!.space);
-    console.log(JSON.stringify(withSpaces));
-    const lastSpace = withSpaces[withSpaces.length - 1] || " ";
-
-    const ret = text.join("") + lastSpace + " */";
-    return ret;
-}
-console.log(generate(text, parseXml(text)));
+    /// <returns></returns>
+   `;
+parseXmlDocBlock(text);

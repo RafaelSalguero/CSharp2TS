@@ -52,8 +52,6 @@ const { parseMethodRegex, parseConstructorRegex } = (() => {
     return { parseMethodRegex: method, parseConstructorRegex: constructor };
 })();
 
-console.log(parseMethodRegex.source);
-
 export function parseConstructor(code: string): ParseResult<CSharpConstructor> | null {
     const method = parseConstructorRegex;
     const match = method.exec(code);

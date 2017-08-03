@@ -12,6 +12,7 @@ import { ExtensionConfig } from "./config";
 import { ParseResult } from "./parse";
 import compose = require("./compose");
 import regexs = require("./regexs");
+import { parseXmlDocBlock, generateJsDoc } from "./commentDoc";
 
 function csFunction<T>(parse: (code: string) => ParseResult<T> | null, generate: (value: T, config: ExtensionConfig) => string) {
     return function (code: string, config: ExtensionConfig) {
@@ -33,6 +34,7 @@ const csAutoProperty = csFunction(parseProperty, generateProperty);
 /**Convert a C# method to a typescript method signature */
 const csMethod = csFunction(parseMethod, generateMethod);
 const csConstructor = csFunction(parseConstructor, generateConstructor);
+const csCommentSummary = csFunction(parseXmlDocBlock, generateJsDoc);
 
 function csAttribute(code: string, config: ExtensionConfig): MatchResult {
     var patt = /[ \t]*\[\S*\][ \t]*\r?\n/;
@@ -57,38 +59,7 @@ interface Match {
 
 type MatchResult = Match | null;
 
-/**
- * 
- * @param code 
- * @param config 
- */
-function csCommentSummary(code: string, config: ExtensionConfig): MatchResult {
-    var patt = /\/\/\/ <summary>\r?\n((?:\s*\/\/\/.*\r?\n?)*) <\/summary>/;
-    var arr = patt.exec(code);
-    if (arr == null) return null;
 
-    //Split summary lines:
-    var lines = arr[1];
-    var separatorPattern = /([ \t]*)\/\/\/\s?(.+)/g;
-    var lineArr: RegExpExecArray | null;
-    var ret = "/*";
-    var first = true;
-    while ((lineArr = separatorPattern.exec(arr[1])) != null) {
-        if (!first) {
-            ret += "\r\n" + lineArr[1];
-        }
-
-        ret += "*" + lineArr[2];
-
-        first = false;
-    }
-    ret += " */";
-    return {
-        result: ret,
-        index: arr.index,
-        length: arr[0].length
-    };
-}
 
 
 function csPublicMember(code: string, config: ExtensionConfig): MatchResult {
@@ -163,8 +134,6 @@ export function cs2ts(code: string, config: ExtensionConfig): string {
 
     return ret;
 }
-
-
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
