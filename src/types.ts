@@ -1,3 +1,5 @@
+
+
 enum CsTypeCategory {
     /**A type that can be represented as a collection of items */
     Enumerable,
@@ -18,7 +20,9 @@ enum CsTypeCategory {
     /**Any type */
     Any,
     /**Unidentified type */
-    Other
+    Other,
+    /**Task/promise task */
+    Task
 }
 
 /**A c# type */
@@ -29,8 +33,6 @@ export class CsType {
         this.array = array;
     }
 
-    /**Nullable type name */
-    static nullable = "Nullable";
 
     /**Type name */
     name: string;
@@ -42,46 +44,80 @@ export class CsType {
 
     /**Gets the type category */
     get category(): CsTypeCategory {
-        var enumerables = ["List", "ObservableCollection", "Array", "IEnumerable", "IList", "IReadOnlyList", "Collection", "ICollection"];
-        var dictionaries = ["Dictionary", "IDictionary"];
+        type TypeCategory = {
+            category: CsTypeCategory;
+            types: string[];
+            genericMin: number;
+            genericMax: number
+        };
 
-        var bools = ["bool", "Boolean", "System.Boolean"];
-        var numbers = [
-            'int', "Int32", "System.Int32",
-            'float', "Single", "System.Single",
-            "double", "Double", "System.Double",
-            'decimal', "Decimal", "System.Decimal",
-            'long', "Int64", "System.Int64",
-            'byte', "Byte", "System.Byte",
-            'sbyte', "SByte", "System.SByte",
-            'short', "Int16", "System.Int16",
-            'ushort', "UInt16", "System.UInt16",
-            'ulong', "UInt64", "System.UInt64"
+        const categories: TypeCategory[] = [
+            {
+                category: CsTypeCategory.Enumerable,
+                types: ["List", "ObservableCollection", "Array", "IEnumerable", "IList", "IReadOnlyList", "Collection", "ICollection", "ISet", "HashSet"],
+                genericMin: 0,
+                genericMax: 1
+            }, {
+                category: CsTypeCategory.Nullable,
+                types: ["Nullable", "System.Nullable"],
+                genericMin: 1,
+                genericMax: 1
+            }, {
+                category: CsTypeCategory.Dictionary,
+                types: ["Dictionary", "IDictionary", "IReadOnlyDictionary"],
+                genericMin: 2,
+                genericMax: 2
+            }, {
+                category: CsTypeCategory.Boolean,
+                types: ["bool", "Boolean", "System.Boolean"],
+                genericMin: 0,
+                genericMax: 0
+            }, {
+                category: CsTypeCategory.Number,
+                types: [
+                    'int', "Int32", "System.Int32",
+                    'float', "Single", "System.Single",
+                    "double", "Double", "System.Double",
+                    'decimal', "Decimal", "System.Decimal",
+                    'long', "Int64", "System.Int64",
+                    'byte', "Byte", "System.Byte",
+                    'sbyte', "SByte", "System.SByte",
+                    'short', "Int16", "System.Int16",
+                    'ushort', "UInt16", "System.UInt16",
+                    'ulong', "UInt64", "System.UInt64"
+                ],
+                genericMin: 0,
+                genericMax: 0
+            }, {
+                category: CsTypeCategory.Date,
+                types: ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"],
+                genericMin: 0,
+                genericMax: 0
+            }, {
+                category: CsTypeCategory.String,
+                types: ["Guid", "string", "System.String", "String"],
+                genericMin: 0,
+                genericMax: 0,
+            }, {
+                category: CsTypeCategory.Any,
+                types: ["object", "System.Object", "dynamic"],
+                genericMin: 0,
+                genericMax: 0,
+            }, {
+                category: CsTypeCategory.Task,
+                types: ["Task", "System.Threading.Tasks.Task"],
+                genericMin: 0,
+                genericMax: 1
+            }, {
+                category: CsTypeCategory.Tuple,
+                types: ["Tuple", "System.Tuple"],
+                genericMin: 1,
+                genericMax: 1000
+            }
         ];
-        var dates = ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"];
-        var strings = ["Guid"];
-        var anys = ["object", "System.Object", "dynamic"];
-        if (enumerables.indexOf(this.name) != -1 && this.generics.length <= 1) {
-            return CsTypeCategory.Enumerable;
-        } else if (dictionaries.indexOf(this.name) != -1 && this.generics.length == 2) {
-            return CsTypeCategory.Dictionary;
-        } else if (this.name == CsType.nullable && this.generics.length == 1) {
-            return CsTypeCategory.Nullable;
-        } else if (this.name == "Tuple" && this.generics.length > 0) {
-            return CsTypeCategory.Tuple;
-        } else if (bools.indexOf(this.name) != -1 && this.generics.length == 0) {
-            return CsTypeCategory.Boolean;
-        } else if (numbers.indexOf(this.name) != -1 && this.generics.length == 0) {
-            return CsTypeCategory.Number;
-        } else if (dates.indexOf(this.name) != -1 && this.generics.length == 0) {
-            return CsTypeCategory.Date;
-        } else if (strings.indexOf(this.name) != -1) {
-            return CsTypeCategory.String;
-        } else if (anys.indexOf(this.name) != -1 && this.generics.length == 0) {
-            return CsTypeCategory.Any;
-        } else {
-            return CsTypeCategory.Other;
-        }
+
+        const cat = categories.filter(cat => cat.types.indexOf(this.name) != -1 && this.generics.length >= cat.genericMin && this.generics.length <= cat.genericMax)[0];
+        return cat ? cat.category : CsTypeCategory.Other;
     }
 
     /**Convert this type to a typescript type */
@@ -98,29 +134,22 @@ export class CsType {
             }
 
             case CsTypeCategory.Dictionary: {
-                if (this.generics.length == 2) {
-                    let keyType = (this.generics[0].category == CsTypeCategory.Number) ? "number" : "string";
+                let keyType = (this.generics[0].category == CsTypeCategory.Number) ? "number" : "string";
+                return `{ [key: ${keyType}]: ${this.generics[1].convertToTypescript()} }`;
 
-                    return `{ [key: ${keyType}]: ${this.generics[1].convertToTypescript()} }`;
-                } else {
-                    throw "";
-                }
             }
             case CsTypeCategory.Nullable: {
-                if (this.generics.length == 1) {
-                    return `${this.generics[0].convertToTypescript()} | null`;
-                }
-                else {
-                    throw "";
-                }
+                return `${this.generics[0].convertToTypescript()} | null`;
             }
             case CsTypeCategory.Tuple: {
-                if (this.generics.length == 0)
-                    throw "";
                 let x: { Item1: number, Item2: boolean };
                 let tupleElements = this.generics.map((v, i) => `Item${i + 1}: ${v.convertToTypescript()}`);
                 let join = tupleElements.reduce((a, b) => a ? a + ", " + b : b, "");
                 return `{ ${join} }`;
+            }
+            case CsTypeCategory.Task: {
+                const promLike = (t: string) => "Promise<" + t + ">";
+                return this.generics.length == 0 ? promLike("void") : promLike(this.generics[0].convertToTypescript());
             }
             case CsTypeCategory.Boolean: {
                 return "boolean";
@@ -246,10 +275,8 @@ export function parseType(code: string): CsType | null {
 
     if (nullable) {
         var underlyingType = new CsType(name, generics, []);
-        return new CsType(CsType.nullable, [underlyingType], arrays);
+        return new CsType("Nullable", [underlyingType], arrays);
     } else {
         return new CsType(name, generics, arrays);
     }
 }
-
-

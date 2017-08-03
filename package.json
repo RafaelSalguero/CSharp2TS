@@ -15,10 +15,12 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "commands": [{
-            "command": "extension.cs2ts",
-            "title": "Convert C# to TypeScript"
-        }],
+        "commands": [
+            {
+                "command": "extension.cs2ts",
+                "title": "Convert C# to TypeScript"
+            }
+        ],
         "configuration": {
             "type": "object",
             "title": "CSharp2TS configuration",
@@ -29,7 +31,10 @@
                     "description": "True for camelCase, false for preserving original name."
                 },
                 "csharp2ts.trimPostfixes": {
-                    "type": ["array", "string"],
+                    "type": [
+                        "array",
+                        "string"
+                    ],
                     "default": "",
                     "description": "Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive."
                 },
@@ -39,9 +44,28 @@
                     "description": "Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)"
                 },
                 "csharp2ts.ignoreInitializer": {
-                    "type":"boolean",
+                    "type": "boolean",
                     "default": true,
                     "description": "Ignore property initializer"
+                },
+                "csharp2ts.removeMethodBodies": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "True to remove method bodies, false to preserve the body as-is"
+                },
+                "csharp2ts.removeConstructors": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "True to remove class constructors, false to treat then like any other method"
+                },
+                "csharp2ts.methodStyle": {
+                    "type": "string",
+                    "enum": [
+                        "signature",
+                        "lambda"
+                    ],
+                    "default": "signature",
+                    "description": "'signature' to emit a method signature, 'lambda' to emit a lambda function"
                 }
             }
         }
@@ -49,7 +73,8 @@
     "scripts": {
         "vscode:prepublish": "tsc -p ./",
         "compile": "tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "typescript": "^2.0.3",

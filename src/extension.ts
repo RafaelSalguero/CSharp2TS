@@ -4,51 +4,35 @@
 import * as vscode from 'vscode';
 import * as types from './types';
 
-import { parseProperty, CSharpProperty } from "./parse";
+import { parseProperty, CSharpProperty } from "./properties";
+import { parseMethod, CSharpMethod, CSharpParameter, parseConstructor } from "./methods";
 
-class Test {
-    name: string = "rafa";
-}
-/**Generate a typescript property */
-function generateTypescriptProperty(prop: CSharpProperty, config: ExtensionConfig): string {
-    //trim spaces:
-    const parseType = types.parseType(prop.type);
-    const tsType =
-        trimMemberName(
-            parseType ? parseType.convertToTypescript() : prop.type,
-            config);
-    const name = getTypescriptPropertyName(prop.name, config);
-    const printInitializer = !config.ignoreInitializer && (!!prop.initializer);
-    
-    return printInitializer ?
-        (name + ": " + tsType + " = " + prop.initializer + ";") :
-        (name + ": " + tsType + ";");
-}
+import { generateProperty, trimMemberName, generateMethod, generateConstructor } from "./generators";
+import { ExtensionConfig } from "./config";
+import { ParseResult } from "./parse";
+import compose = require("./compose");
+import regexs = require("./regexs");
 
-function getTypescriptPropertyName(name: string, config: ExtensionConfig) {
-    var isAbbreviation = name.toUpperCase() == name;
-    name = trimMemberName(name, config);
-    if (config.propertiesToCamelCase && !isAbbreviation) {
-        return name[0].toLowerCase() + name.substr(1);
+function csFunction<T>(parse: (code: string) => ParseResult<T> | null, generate: (value: T, config: ExtensionConfig) => string) {
+    return function (code: string, config: ExtensionConfig) {
+        const parseResult = parse(code);
+        if (!parseResult) {
+            return null;
+        } else {
+            return {
+                result: generate(parseResult.data, config),
+                index: parseResult.index,
+                length: parseResult.length
+            } as MatchResult;
+        }
     }
-
-    return name;
 }
 
 /**Convert a c# automatic or fat arrow property to a typescript property. Returns null if the string didn't match */
-function csAutoProperty(code: string, config: ExtensionConfig): MatchResult {
-    const parse = parseProperty(code);
-    if (!parse) {
-        return null;
-    }
-    else {
-        return {
-            result: generateTypescriptProperty(parse.data, config),
-            index: parse.index,
-            length: parse.length
-        };
-    }
-}
+const csAutoProperty = csFunction(parseProperty, generateProperty);
+/**Convert a C# method to a typescript method signature */
+const csMethod = csFunction(parseMethod, generateMethod);
+const csConstructor = csFunction(parseConstructor, generateConstructor);
 
 function csAttribute(code: string, config: ExtensionConfig): MatchResult {
     var patt = /[ \t]*\[\S*\][ \t]*\r?\n/;
@@ -73,6 +57,11 @@ interface Match {
 
 type MatchResult = Match | null;
 
+/**
+ * 
+ * @param code 
+ * @param config 
+ */
 function csCommentSummary(code: string, config: ExtensionConfig): MatchResult {
     var patt = /\/\/\/ <summary>\r?\n((?:\s*\/\/\/.*\r?\n?)*) <\/summary>/;
     var arr = patt.exec(code);
@@ -101,6 +90,7 @@ function csCommentSummary(code: string, config: ExtensionConfig): MatchResult {
     };
 }
 
+
 function csPublicMember(code: string, config: ExtensionConfig): MatchResult {
     var patt = /public\s*(?:(?:abstract)|(?:sealed))?(\S*)\s+(.*)\s*{/;
     var arr = patt.exec(code);
@@ -120,39 +110,7 @@ function csPublicMember(code: string, config: ExtensionConfig): MatchResult {
     };
 }
 
-function trimMemberName(name: string, config: ExtensionConfig): string {
-    name = name.trim();
 
-    var postfixes = config.trimPostfixes;
-    if (!postfixes)
-        return name;
-    var trimRecursive = config.recursiveTrimPostfixes;
-
-    var trimmed = true;
-    do {
-        trimmed = false;
-
-        for (let postfix of postfixes) {
-            if (!name.endsWith(postfix))
-                continue;
-
-            name = trimEnd(name, postfix);
-            if (!trimRecursive)
-                return name;
-
-            trimmed = true;
-        }
-    } while (trimmed); // trim recursive until no more occurrences will be found
-
-    return name;
-}
-
-function trimEnd(text: string, postfix: string) {
-    if (text.endsWith(postfix)) {
-        return text.substr(0, text.length - postfix.length);
-    }
-    return text;
-}
 
 /**Find the next match */
 function findMatch(code: string, startIndex: number, config: ExtensionConfig): MatchResult {
@@ -160,6 +118,8 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
 
     var functions: ((code: string, config: ExtensionConfig) => MatchResult)[] = [
         csAutoProperty,
+        csMethod,
+        csConstructor,
         csCommentSummary,
         csAttribute,
         csPublicMember
@@ -183,8 +143,6 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
 /**Convert c# code to typescript code */
 export function cs2ts(code: string, config: ExtensionConfig): string {
     var ret = "";
-    var lineArr: RegExpExecArray;
-    var lastAddedLineJump = true;
 
     var index = 0;
     while (true) {
@@ -251,23 +209,22 @@ function getConfiguration(): ExtensionConfig {
     var propertiesToCamelCase = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase") as boolean;
     var recursiveTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean
     var ignoreInitializer = vscode.workspace.getConfiguration('csharp2ts').get("ignoreInitializer") as boolean
+    var removeMethodBodies = vscode.workspace.getConfiguration('csharp2ts').get("removeMethodBodies") as boolean
+    var removeConstructors = vscode.workspace.getConfiguration('csharp2ts').get("removeConstructors") as boolean
+    var methodStyle = vscode.workspace.getConfiguration('csharp2ts').get("methodStyle") as ("signature" | "lambda")
 
     return {
         propertiesToCamelCase,
         trimPostfixes,
         recursiveTrimPostfixes,
-        ignoreInitializer
+        ignoreInitializer,
+        removeMethodBodies,
+        removeConstructors,
+        methodStyle
     };
 }
 
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-}
-
-export interface ExtensionConfig {
-    propertiesToCamelCase: boolean;
-    trimPostfixes: string[];
-    recursiveTrimPostfixes: boolean;
-    ignoreInitializer: boolean;
 }
