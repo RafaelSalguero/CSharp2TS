@@ -20,7 +20,7 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
 
     const { identifier, space, spaceOptional, type } = regexs;
 
-    const propName = seq(cap(identifier), space);
+    const propName = seq(cap(identifier), spaceOptional);
 
     //Regex que captura el get set con initializador o el fat arrow
     const getSetOrFatArrow = (() => {

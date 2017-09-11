@@ -99,4 +99,7 @@ On your workspace or user `settings.json`:
 - Emit method signature or method empty implementation, see the `csharp2ts.methodStyle` configuration
 - Added a C# XML Docs parser, improving generated JSDoc
 - Improved code base
-- Support for the `Task` tyoe
+- Support for the `Task` type
+
+### 0.0.18
+- Bug fix: Support for international characters on identifiers

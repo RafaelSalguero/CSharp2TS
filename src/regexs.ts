@@ -2,7 +2,7 @@ import {
     any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore
 } from "./compose";
 
-export const identifier = /[a-zA-Z0-9_]+/;
+export const identifier = /[a-zA-Z\u00C0-\u00FF_][a-zA-Z\u00C0-\u00FF_0-9]*/;
 export const space = /\s+/;
 export const spaceOrLine = /(?:\s|\n|\r)+/;
 export const spaceOrLineOptional = /(?:\s|\n|\r)*/;

@@ -28,7 +28,7 @@ suite("Extension Tests", () => {
 
         var testPairs: { inputs: string[], output: string }[] = [
             {
-                inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age{get;set;}"],
+                inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age {get;set;}"],
                 output: "Age: number;"
             },
             {
@@ -71,6 +71,10 @@ suite("Extension Tests", () => {
                 inputs: ["Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName { get; set; }", "Tuple<int, Dictionary<object, List<Tuple<int, bool?>>>> PropName => hello;"],
                 output: "PropName: { Item1: number, Item2: { [key: string]: { Item1: number, Item2: boolean | null }[] } };"
             },
+            {
+                inputs: ["int? AñoMes { get; set; }"],
+                output: "AñoMes: number | null;"
+            }
         ];
         for (const p of testPairs) {
             for (const input of p.inputs) {
