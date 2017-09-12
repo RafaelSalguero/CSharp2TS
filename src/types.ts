@@ -1,4 +1,6 @@
 
+import { any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore } from "./compose";
+import { identifier, space, spaceOptional } from "./regexs";
 
 enum CsTypeCategory {
     /**A type that can be represented as a collection of items */
@@ -252,7 +254,15 @@ export function parseType(code: string): CsType | null {
     //Remove all spaces:
     code = code.replace(" ", "");
 
-    const patt = /([a-zA-Z0-9_]+)\s*(?:<(.*)>)?\s*(\?)?\s*(\[[,\[\]]*\])*/;
+    const patt = seq(
+        cap(identifier),
+        spaceOptional,
+        optional(/<(.*)>/),
+        spaceOptional,
+        cap(optional(/\?/)),
+        spaceOptional,
+        zeroOrMore(cap(/\[[,\[\]]*\]/))
+    );
 
     const arr = patt.exec(code);
     if (!arr) {
