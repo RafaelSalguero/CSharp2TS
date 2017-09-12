@@ -103,3 +103,6 @@ On your workspace or user `settings.json`:
 
 ### 0.0.18
 - Bug fix: Support for international characters on identifiers
+
+### 0.0.19
+- Bug fix: Support for international characters on type names
