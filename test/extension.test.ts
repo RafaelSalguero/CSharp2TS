@@ -23,7 +23,9 @@ suite("Extension Tests", () => {
             ignoreInitializer: true,
             removeMethodBodies: true,
             removeConstructors: false,
-            methodStyle: "signature"
+            methodStyle: "signature",
+            byteArrayToString: false,
+            dateToDateOrString: false
         };
 
         var testPairs: { inputs: string[], output: string }[] = [

@@ -31,8 +31,12 @@ On your workspace or user `settings.json`:
      "csharp2ts.removeMethodBodies": true,
      //True to remove class constructors, false to treat then like any other method
      "csharp2ts.removeConstructors": false,
-     //'signature' to emit a method signature, 'lambda' to emit a lambda function
-     "csharp2ts.methodStyle": 'signature'
+     //'signature' to emit a method signature, 'lambda' to emit a lambda function. 'controller' to emit a lambda to call an async controller
+     "csharp2ts.methodStyle": 'signature',
+     //True to convert C# byte array type to Typescript string, defaults to true since the serialization of C# byte[] results in a string
+     "csharp2ts.byteArrayToString": true,
+     //"True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string"s
+     "csharp2ts.dateToDateOrString": true
 }
 ```
 
@@ -110,3 +114,7 @@ On your workspace or user `settings.json`:
 #### 0.0.20
 - Improved attribute parsing and removing
 - New method body style `controller`
+
+#### 0.0.21
+- Improved class constructor parsing
+- New configuration for type generators: `byteArrayToString` and `dateToDateOrString`

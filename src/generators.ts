@@ -8,7 +8,7 @@ import { CSharpClass } from "./classes";
 
 function generateType(type: string, config: ExtensionConfig): string {
     const parseType = types.parseType(type);
-    return trimMemberName(parseType ? types.convertToTypescript(parseType) : type, config);
+    return trimMemberName(parseType ? types.convertToTypescript(parseType, config) : type, config);
 }
 
 function generateParam(value: CSharpParameter, config: ExtensionConfig): string {

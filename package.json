@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.20",
+    "version": "0.0.21",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
@@ -67,6 +67,16 @@
                     ],
                     "default": "signature",
                     "description": "'signature' to emit a method signature, 'lambda' to emit a lambda function. 'controller' to emit a lambda to call an async controller"
+                },
+                "csharp2ts.byteArrayToString": {
+                    "type":"boolean",
+                    "default": true,
+                    "description": "True to convert C# byte array type to Typescript string, defaults to true since the serialization of C# byte[] results in a string"
+                }, 
+                "csharp2ts.dateToDateOrString": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string"
                 }
             }
         }

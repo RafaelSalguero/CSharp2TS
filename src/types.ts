@@ -1,6 +1,7 @@
 
 import { any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore } from "./compose";
 import { identifier, space, spaceOptional } from "./regexs";
+import { ExtensionConfig } from "./config";
 
 enum CsTypeCategory {
     /**A type that can be represented as a collection of items */
@@ -15,6 +16,8 @@ enum CsTypeCategory {
     Boolean,
     /**A numeric type */
     Number,
+    /**A 1-dimension byte array */
+    ByteArray,
     /**A date type */
     Date,
     /**A string type */
@@ -48,9 +51,9 @@ export function isUriSimpleType(x: CsType): boolean {
 
     const isSimpleCat = (x: CsTypeCategory) => simpleCats.indexOf(x) != -1;
     const typeCat = getTypeCategory(x);
-    if(isSimpleCat(typeCat)) {
-        return true; 
-    } else if (typeCat == CsTypeCategory.Nullable && isSimpleCat( getTypeCategory(x.generics[0])) ) {
+    if (isSimpleCat(typeCat)) {
+        return true;
+    } else if (typeCat == CsTypeCategory.Nullable && isSimpleCat(getTypeCategory(x.generics[0]))) {
         return true;
     }
     return false;
@@ -63,6 +66,12 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
         genericMin: number;
         genericMax: number
     };
+    const byteTypeName = ['byte', "Byte", "System.Byte"];
+
+    //Check if the type is byteArray
+    if (byteTypeName.indexOf(x.name) != -1 && x.generics.length == 0 && x.array.length == 1 && x.array[0].dimensions == 1) {
+        return CsTypeCategory.ByteArray;
+    }
 
     const categories: TypeCategory[] = [
         {
@@ -93,7 +102,7 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
                 "double", "Double", "System.Double",
                 'decimal', "Decimal", "System.Decimal",
                 'long', "Int64", "System.Int64",
-                'byte', "Byte", "System.Byte",
+                ...byteTypeName,
                 'sbyte', "SByte", "System.SByte",
                 'short', "Int16", "System.Int16",
                 'ushort', "UInt16", "System.UInt16",
@@ -133,7 +142,11 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
     return cat ? cat.category : CsTypeCategory.Other;
 }
 
-export function convertToTypescript(x: CsType): string {
+export function convertToTypescript(x: CsType, config: ExtensionConfig): string {
+    if(config.byteArrayToString && getTypeCategory(x) ==  CsTypeCategory.ByteArray) {
+        return "string";
+    }
+
     var arrayStr = "";
     for (var a of x.array) {
         arrayStr += "[";
@@ -142,16 +155,16 @@ export function convertToTypescript(x: CsType): string {
         }
         arrayStr += "]";
     }
-    return convertToTypescriptNoArray(x) + arrayStr;
+    return convertToTypescriptNoArray(x, config) + arrayStr;
 }
-function convertToTypescriptNoArray(value: CsType): string {
+function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): string {
     const category = getTypeCategory(value);
     switch (category) {
         case CsTypeCategory.Enumerable: {
             if (value.generics.length == 0) {
                 return "any[]";
             } else if (value.generics.length == 1) {
-                return convertToTypescript(value.generics[0]) + "[]";
+                return convertToTypescript(value.generics[0], config) + "[]";
             } else {
                 throw "";
             }
@@ -159,30 +172,31 @@ function convertToTypescriptNoArray(value: CsType): string {
 
         case CsTypeCategory.Dictionary: {
             let keyType = (getTypeCategory(value.generics[0]) == CsTypeCategory.Number) ? "number" : "string";
-            return `{ [key: ${keyType}]: ${convertToTypescript(value.generics[1])} }`;
+            return `{ [key: ${keyType}]: ${convertToTypescript(value.generics[1], config)} }`;
 
         }
         case CsTypeCategory.Nullable: {
-            return `${convertToTypescript(value.generics[0])} | null`;
+            return `${convertToTypescript(value.generics[0], config)} | null`;
         }
         case CsTypeCategory.Tuple: {
             let x: { Item1: number, Item2: boolean };
-            let tupleElements = value.generics.map((v, i) => `Item${i + 1}: ${convertToTypescript(v)}`);
+            let tupleElements = value.generics.map((v, i) => `Item${i + 1}: ${convertToTypescript(v, config)}`);
             let join = tupleElements.reduce((a, b) => a ? a + ", " + b : b, "");
             return `{ ${join} }`;
         }
         case CsTypeCategory.Task: {
             const promLike = (t: string) => "Promise<" + t + ">";
-            return value.generics.length == 0 ? promLike("void") : promLike(convertToTypescript(value.generics[0]));
+            return value.generics.length == 0 ? promLike("void") : promLike(convertToTypescript(value.generics[0], config));
         }
         case CsTypeCategory.Boolean: {
             return "boolean";
         }
-        case CsTypeCategory.Number: {
+        case CsTypeCategory.Number:
+        case CsTypeCategory.ByteArray: {
             return "number";
         }
         case CsTypeCategory.Date: {
-            return "Date";
+            return config.dateToDateOrString ? "Date | string"  : "Date";
         }
         case CsTypeCategory.String: {
             return "string";
@@ -192,7 +206,7 @@ function convertToTypescriptNoArray(value: CsType): string {
         }
         case CsTypeCategory.Other: {
             if (value.generics.length > 0) {
-                var generics = value.generics.map(x => convertToTypescript(x)).reduce((a, b) => a ? a + ", " + b : b, "");
+                var generics = value.generics.map(x => convertToTypescript(x, config)).reduce((a, b) => a ? a + ", " + b : b, "");
                 return `${value.name}<${generics}>`;
             } else {
                 return value.name;

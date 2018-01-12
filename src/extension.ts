@@ -92,8 +92,8 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
     var functions: ((code: string, config: ExtensionConfig) => MatchResult)[] = [
         csClass,
         csAutoProperty,
-        csMethod,
         csConstructor,
+        csMethod,
         csCommentSummary,
         csAttribute,
         csPublicMember
@@ -170,21 +170,17 @@ export function activate(context: vscode.ExtensionContext) {
 
 function getConfiguration(): ExtensionConfig {
 
-    var rawTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("trimPostfixes") as string | string[];
-    var trimPostfixes: string[] = [];
-    if (typeof rawTrimPostfixes == "string") {
-        trimPostfixes = [rawTrimPostfixes];
-    } else {
-        trimPostfixes = rawTrimPostfixes;
-    }
+    const rawTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("trimPostfixes") as string | string[];
+    const trimPostfixes: string[] = typeof rawTrimPostfixes == "string" ? [rawTrimPostfixes] : rawTrimPostfixes;
 
-    var propertiesToCamelCase = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase") as boolean;
-    var recursiveTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean
-    var ignoreInitializer = vscode.workspace.getConfiguration('csharp2ts').get("ignoreInitializer") as boolean
-    var removeMethodBodies = vscode.workspace.getConfiguration('csharp2ts').get("removeMethodBodies") as boolean
-    var removeConstructors = vscode.workspace.getConfiguration('csharp2ts').get("removeConstructors") as boolean
-    var methodStyle = vscode.workspace.getConfiguration('csharp2ts').get("methodStyle") as ("signature" | "lambda")
-
+    const propertiesToCamelCase = vscode.workspace.getConfiguration('csharp2ts').get("propertiesToCamelCase") as boolean;
+    const recursiveTrimPostfixes = vscode.workspace.getConfiguration('csharp2ts').get("recursiveTrimPostfixes") as boolean;
+    const ignoreInitializer = vscode.workspace.getConfiguration('csharp2ts').get("ignoreInitializer") as boolean;
+    const removeMethodBodies = vscode.workspace.getConfiguration('csharp2ts').get("removeMethodBodies") as boolean;
+    const removeConstructors = vscode.workspace.getConfiguration('csharp2ts').get("removeConstructors") as boolean;
+    const methodStyle = vscode.workspace.getConfiguration('csharp2ts').get("methodStyle") as ("signature" | "lambda");
+    const byteArrayToString = vscode.workspace.getConfiguration('csharp2ts').get("byteArrayToString") as boolean;
+    const dateToDateOrString = vscode.workspace.getConfiguration('csharp2ts').get("dateToDateOrString") as boolean;
     return {
         propertiesToCamelCase,
         trimPostfixes,
@@ -192,7 +188,9 @@ function getConfiguration(): ExtensionConfig {
         ignoreInitializer,
         removeMethodBodies,
         removeConstructors,
-        methodStyle
+        methodStyle,
+        byteArrayToString,
+        dateToDateOrString
     };
 }
 
