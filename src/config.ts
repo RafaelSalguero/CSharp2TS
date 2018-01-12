@@ -6,7 +6,7 @@ export interface ExtensionConfig {
     ignoreInitializer: boolean;
     removeMethodBodies: boolean;
     removeConstructors: boolean;
-    methodStyle: "signature" | "lambda";
+    methodStyle: "signature" | "lambda" | "controller";
 }
 
 export const maxBodyDepth = 8;

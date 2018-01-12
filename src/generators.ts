@@ -4,11 +4,11 @@ import { ExtensionConfig } from "./config";
 
 import { parseProperty, CSharpProperty } from "./properties";
 import { parseMethod, CSharpMethod, CSharpParameter, CSharpConstructor, parseConstructor } from "./methods";
-
+import { CSharpClass } from "./classes";
 
 function generateType(type: string, config: ExtensionConfig): string {
     const parseType = types.parseType(type);
-    return trimMemberName(parseType ? parseType.convertToTypescript() : type, config);
+    return trimMemberName(parseType ? types.convertToTypescript(parseType) : type, config);
 }
 
 function generateParam(value: CSharpParameter, config: ExtensionConfig): string {
@@ -16,13 +16,35 @@ function generateParam(value: CSharpParameter, config: ExtensionConfig): string 
     return value.name + ": " + tsType;
 }
 
+function generateControllerBody(name: string, params: CSharpParameter[]): string {
+    const isUriSimpleType = (x: CSharpParameter) => {
+        const parseType = types.parseType(x.type);
+        return parseType && types.isUriSimpleType(parseType);
+    }
+
+    const simpleParams = params.filter(isUriSimpleType).map(x => x.name).join(", ");
+    const bodyParams = params.filter(x => !isUriSimpleType(x)).map(x => x.name).join(", ");
+
+    if (bodyParams.length == 0) {
+        return ` => await controller('${name}', {${simpleParams}}), `;
+    } else {
+        return ` => await controller('${name}', {${simpleParams}}, ${bodyParams}), `;
+    }
+}
+
 export function generateMethod(value: CSharpMethod, config: ExtensionConfig): string {
     const paramList = value.parameters.map(x => generateParam(x, config)).join(", ");
     const returnType = generateType(value.returnType, config);
 
     const fullType = "(" + paramList + "): " + returnType;
-    return config.methodStyle == "signature" ? (value.name + fullType + ";") :
-        config.methodStyle == "lambda" ? (value.name + ": " + (value.async ? "async " : "") + fullType + " => { throw new Error('TODO'); }, ") : null as never;
+    const lambdaBody = (value.name + ": " + (value.async ? "async " : "")) + fullType;
+
+    return (
+        config.methodStyle == "signature" ? (value.name + fullType + ";") :
+            config.methodStyle == "lambda" ? lambdaBody + " => { throw new Error('TODO'); }, " :
+                config.methodStyle == "controller" ? lambdaBody + generateControllerBody(value.name, value.parameters)
+                    : config.methodStyle
+    );
 }
 
 export function generateConstructor(value: CSharpConstructor, config: ExtensionConfig): string {
@@ -47,6 +69,18 @@ export function generateProperty(prop: CSharpProperty, config: ExtensionConfig):
     return printInitializer ?
         (name + ": " + tsType + " = " + prop.initializer + ";") :
         (name + ": " + tsType + ";");
+}
+
+export function generateClass(x: CSharpClass, config: ExtensionConfig): string {
+    const inheritsTypes = x.inherits.map(x => generateType(x, config));
+    const name = x.name;
+    const modifier = (x.isPublic ? "export " : "");
+    const prefix = `${modifier}interface ${name}`;
+    if (inheritsTypes.length > 0) {
+        return `${prefix} extends ${inheritsTypes.join(", ")}`;
+    } else {
+        return prefix;
+    }
 }
 
 function getTypescriptPropertyName(name: string, config: ExtensionConfig) {

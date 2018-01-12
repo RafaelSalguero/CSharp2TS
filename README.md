@@ -106,3 +106,7 @@ On your workspace or user `settings.json`:
 
 ### 0.0.19
 - Bug fix: Support for international characters on type names
+
+#### 0.0.20
+- Improved attribute parsing and removing
+- New method body style `controller`

@@ -7,12 +7,13 @@ import * as types from './types';
 import { parseProperty, CSharpProperty } from "./properties";
 import { parseMethod, CSharpMethod, CSharpParameter, parseConstructor } from "./methods";
 
-import { generateProperty, trimMemberName, generateMethod, generateConstructor } from "./generators";
+import { generateProperty, trimMemberName, generateMethod, generateConstructor, generateClass } from "./generators";
 import { ExtensionConfig } from "./config";
 import { ParseResult } from "./parse";
 import compose = require("./compose");
 import regexs = require("./regexs");
 import { parseXmlDocBlock, generateJsDoc } from "./commentDoc";
+import { parseClass } from "./classes";
 
 function csFunction<T>(parse: (code: string) => ParseResult<T> | null, generate: (value: T, config: ExtensionConfig) => string) {
     return function (code: string, config: ExtensionConfig) {
@@ -35,6 +36,7 @@ const csAutoProperty = csFunction(parseProperty, generateProperty);
 const csMethod = csFunction(parseMethod, generateMethod);
 const csConstructor = csFunction(parseConstructor, generateConstructor);
 const csCommentSummary = csFunction(parseXmlDocBlock, generateJsDoc);
+const csClass = csFunction(parseClass, generateClass);
 
 function csAttribute(code: string, config: ExtensionConfig): MatchResult {
     var patt = /[ \t]*\[\S*\][ \t]*\r?\n/;
@@ -88,6 +90,7 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
     code = code.substr(startIndex);
 
     var functions: ((code: string, config: ExtensionConfig) => MatchResult)[] = [
+        csClass,
         csAutoProperty,
         csMethod,
         csConstructor,

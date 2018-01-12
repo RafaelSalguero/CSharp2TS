@@ -1,5 +1,5 @@
 import {
-    any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore
+    any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore, commas
 } from "./compose";
 import regexs = require("./regexs");
 
@@ -12,13 +12,18 @@ export interface CSharpProperty {
 }
 
 export function parseProperty(code: string): ParseResult<CSharpProperty> | null {
+    const { identifier, space, spaceOptional, type, spaceOrLineOptional } = regexs;
+    const propAttributes =  optional(seq(commas(
+        seq(/\[/, identifier, /.*/, /\]/),
+        spaceOrLineOptional
+    ), spaceOrLineOptional  ));
+
     const propModifier = optional(seq(
         optional(/public/),
         optional(any(/\s+new/, /\s+override/)),
         /\s*/
     ));
 
-    const { identifier, space, spaceOptional, type } = regexs;
 
     const propName = seq(cap(identifier), spaceOptional);
 
@@ -36,6 +41,7 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
 
     //Regex que captura a toda la propiedad:
     const prop = seq(
+        propAttributes,
         propModifier,
         seq(cap(type), space),
         propName,

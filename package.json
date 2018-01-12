@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.19",
+    "version": "0.0.20",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
@@ -62,10 +62,11 @@
                     "type": "string",
                     "enum": [
                         "signature",
-                        "lambda"
+                        "lambda",
+                        "controller"
                     ],
                     "default": "signature",
-                    "description": "'signature' to emit a method signature, 'lambda' to emit a lambda function"
+                    "description": "'signature' to emit a method signature, 'lambda' to emit a lambda function. 'controller' to emit a lambda to call an async controller"
                 }
             }
         }
