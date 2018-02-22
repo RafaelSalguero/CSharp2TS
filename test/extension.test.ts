@@ -14,7 +14,47 @@ import { ExtensionConfig } from "../src/config";
 
 // Defines a1 Mocha test suite to group tests of similar k1ind together
 suite("Extension Tests", () => {
+    test ("remove members test", () => {
+        var config: ExtensionConfig = {
+            propertiesToCamelCase: false,
+            recursiveTrimPostfixes: false,
+            trimPostfixes: [],
+            ignoreInitializer: true,
+            removeMethodBodies: true,
+            removeConstructors: false,
+            methodStyle: "signature",
+            byteArrayToString: false,
+            dateToDateOrString: false,
+            removeWithModifier: ["private", "internal"],
+            removeNameRegex: "_[a-z][a-zA-Z0-9]*",
+            classToInterface: true,
+            preserveModifiers: false
+        };
+        const testPairs: { inputs: string[], output: string }[] = [
+            {
+                inputs: ["int MyProp { get; set; }"],
+                output: "MyProp: number;"
+            }, {
+                inputs: ["private int myField;"],
+                output: ""
+            }, {
+                inputs: ["internal int myProp { get; set; }"],
+                output: ""
+            }, {
+                inputs: ["string _myBackField;"],
+                output: ""
+            }, {
+                inputs: ["string nonBackField;"],
+                output: "nonBackField: string;"
+            }
+        ]
 
+        for (const p of testPairs) {
+            for (const input of p.inputs) {
+                assert.equal(extension.cs2ts(input, config), p.output, input);
+            }
+        }
+    })
     test("Auto property test", () => {
         var config: ExtensionConfig = {
             propertiesToCamelCase: false,
@@ -25,10 +65,14 @@ suite("Extension Tests", () => {
             removeConstructors: false,
             methodStyle: "signature",
             byteArrayToString: false,
-            dateToDateOrString: false
+            dateToDateOrString: false,
+            removeWithModifier: [],
+            removeNameRegex: "",
+            classToInterface: true,
+            preserveModifiers: false
         };
 
-        var testPairs: { inputs: string[], output: string }[] = [
+        const testPairs: { inputs: string[], output: string }[] = [
             {
                 inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age {get;set;}"],
                 output: "Age: number;"

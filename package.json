@@ -2,7 +2,7 @@
     "name": "csharp2ts",
     "displayName": "CSharp2TS",
     "description": "Convert C# POCOs to typescript",
-    "version": "0.0.21",
+    "version": "0.0.22",
     "publisher": "rafaelsalguero",
     "engines": {
         "vscode": "^1.5.0"
@@ -77,6 +77,26 @@
                     "type": "boolean",
                     "default": true,
                     "description": "True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string"
+                },
+                "csharp2ts.removeWithModifier": {
+                    "type": "array",
+                    "default": [],
+                    "description": "Remove fields or properties with the given modifiers. Ex. if you want to remove private and internal members set to ['private', 'internal']"
+                }, 
+                "csharp2ts.removeNameRegex": {
+                    "type": "string",
+                    "default": "",
+                    "description": "If setted, any property or field that its name matches the given regex will be removed"
+                },
+                "csharp2ts.classToInterface": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "True to convert classes to interfaces, false to convert classes to classes. Default is true"
+                },
+                "csharp2ts.preserveModifiers": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "True to preserve fields and property modifiers. Default is false"
                 }
             }
         }

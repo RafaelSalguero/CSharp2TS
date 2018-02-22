@@ -66,16 +66,30 @@ export function generateProperty(prop: CSharpProperty, config: ExtensionConfig):
     const name = getTypescriptPropertyName(prop.name, config);
     const printInitializer = !config.ignoreInitializer && (!!prop.initializer);
 
-    return printInitializer ?
-        (name + ": " + tsType + " = " + prop.initializer + ";") :
-        (name + ": " + tsType + ";");
+    const removeNameRegex = config.removeNameRegex != "" && (new RegExp(config.removeNameRegex)).test(name);
+    const removeModifier = config.removeWithModifier.indexOf(prop.modifier) != -1;
+    const removeProp = removeNameRegex || removeModifier;
+    const modifier = prop.modifier; //TODO: Convert C# modifiers to TS modifiers
+    if (removeProp) {
+        return "";
+    }
+
+    return (
+        (
+            config.preserveModifiers ? (modifier + " ") : ""
+        ) +
+        (printInitializer ?
+            (name + ": " + tsType + " = " + prop.initializer + ";") :
+            (name + ": " + tsType + ";"))
+    );
 }
 
 export function generateClass(x: CSharpClass, config: ExtensionConfig): string {
     const inheritsTypes = x.inherits.map(x => generateType(x, config));
     const name = x.name;
     const modifier = (x.isPublic ? "export " : "");
-    const prefix = `${modifier}interface ${name}`;
+    const keyword = config.classToInterface ? "interface" : "class";
+    const prefix = `${modifier}${keyword} ${name}`;
     if (inheritsTypes.length > 0) {
         return `${prefix} extends ${inheritsTypes.join(", ")}`;
     } else {

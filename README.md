@@ -36,7 +36,15 @@ On your workspace or user `settings.json`:
      //True to convert C# byte array type to Typescript string, defaults to true since the serialization of C# byte[] results in a string
      "csharp2ts.byteArrayToString": true,
      //"True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string"s
-     "csharp2ts.dateToDateOrString": true
+     "csharp2ts.dateToDateOrString": true,
+     /*Modifiers to remove. Ex. if you want to remove private and internal members set to ['private', 'internal']*/
+     "csharp2ts.removeModifiers": [],
+     /*If setted, any property or field that its name matches the given regex will be removed, Ex. if you want to remove backing fields starting with underscore set to "_[a-z][a-zA-Z0-9]*" */
+     "csharp2ts.removeNameRegex": "",
+     /*True to convert classes to interfaces, false to convert classes to classes. Default is true*/
+     "csharp2ts.classToInterface": true,
+     /*True to preserve fields and property modifiers. Default is false*/
+     "csharp2ts.preserveModifiers": false
 }
 ```
 
@@ -118,3 +126,11 @@ On your workspace or user `settings.json`:
 #### 0.0.21
 - Improved class constructor parsing
 - New configuration for type generators: `byteArrayToString` and `dateToDateOrString`
+
+#### 0.0.22
+- Bug fix: Support for fields
+- Bug fix: Translation was wrong on some special cases with generic types mixed with arrays
+- New config: `classToInterface`. Convert `class` to `interface` or `class`
+- New config: `preserveModifiers`. Preserve properties and field modifiers. 
+- New config: `removeWithModifier`. Remove fields and properties with the given modifiers.
+- New config: `removeNameRegex`. Remove fields and properties that its name match the given regex.

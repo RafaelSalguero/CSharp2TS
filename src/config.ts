@@ -18,6 +18,14 @@ export interface ExtensionConfig {
     byteArrayToString: boolean;
     /**True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string */
     dateToDateOrString: boolean;
+    /**Remove fields or properties with the given modifiers. Ex. if you want to remove private and internal members set to ['private', 'internal'] */
+    removeWithModifier: string[];
+    /**If setted, any property or field that its name matches the given regex will be removed */
+    removeNameRegex: string;
+    /**True to convert classes to interfaces, false to convert classes to classes. Default is true */
+    classToInterface: boolean;
+    /**True to preserve fields and property modifiers. Default is false */
+    preserveModifiers: boolean;
 }
 
 export const maxBodyDepth = 8;

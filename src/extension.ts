@@ -181,6 +181,11 @@ function getConfiguration(): ExtensionConfig {
     const methodStyle = vscode.workspace.getConfiguration('csharp2ts').get("methodStyle") as ("signature" | "lambda");
     const byteArrayToString = vscode.workspace.getConfiguration('csharp2ts').get("byteArrayToString") as boolean;
     const dateToDateOrString = vscode.workspace.getConfiguration('csharp2ts').get("dateToDateOrString") as boolean;
+    const removeWithModifier = vscode.workspace.getConfiguration('csharp2ts').get("removeWithModifier") as string[];
+    const removeNameRegex = vscode.workspace.getConfiguration('csharp2ts').get("removeNameRegex") as string;
+    const classToInterface = vscode.workspace.getConfiguration('csharp2ts').get("classToInterface") as boolean;
+    const preserveModifiers = vscode.workspace.getConfiguration('csharp2ts').get("preserveModifiers") as boolean;
+
     return {
         propertiesToCamelCase,
         trimPostfixes,
@@ -190,7 +195,11 @@ function getConfiguration(): ExtensionConfig {
         removeConstructors,
         methodStyle,
         byteArrayToString,
-        dateToDateOrString
+        dateToDateOrString,
+        removeWithModifier,
+        removeNameRegex,
+        classToInterface,
+        preserveModifiers
     };
 }
 

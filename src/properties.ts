@@ -8,6 +8,7 @@ import { ExtensionConfig } from "./config";
 export interface CSharpProperty {
     name: string;
     type: string;
+    modifier: string;
     initializer: string;
     /**True if this is a field, false if this is a property */
     isField: boolean;
@@ -21,8 +22,12 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
     ), spaceOrLineOptional));
 
     const propModifier = optional(seq(
-        optional(/public/),
-        optional(any(/\s+new/, /\s+override/)),
+        cap(
+            seq(
+            optional(any(/public/, /private/, /protected/, /internal/)),
+            optional(any(/\s+new/, /\s+override/))
+            ))
+        ,
         /\s*/
     ));
 
@@ -64,16 +69,17 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
     if (!match) {
         return null;
     } else {
-        const isProperty = getSetOrFatArrow.test(match[3]);
+        const isProperty = getSetOrFatArrow.test(match[4]);
         const isMember = !isProperty;
 
         return {
             index: match.index,
             length: match[0].length,
             data: {
-                type: match[1],
-                name: match[2],
-                initializer: isMember ? match[5] : match[4],
+                modifier: match[1],
+                type: match[2],
+                name: match[3],
+                initializer: isMember ? match[6] : match[5],
                 isField: isMember
             }
         }
