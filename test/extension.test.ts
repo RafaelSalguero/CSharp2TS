@@ -79,6 +79,9 @@ suite("Extension Tests", () => {
             }, {
                 inputs: ["AñoMes MiFecha { get; set; }"],
                 output: "MiFecha: AñoMes;"
+            } , {
+                inputs: ["public int Bar = 42;", "int Bar   =   42;", "int Bar=42;", "int Bar;"],
+                output: "Bar: number;"
             }
         ];
         for (const p of testPairs) {

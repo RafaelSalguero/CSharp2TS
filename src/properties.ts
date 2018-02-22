@@ -9,14 +9,16 @@ export interface CSharpProperty {
     name: string;
     type: string;
     initializer: string;
+    /**True if this is a field, false if this is a property */
+    isField: boolean;
 }
 
 export function parseProperty(code: string): ParseResult<CSharpProperty> | null {
     const { identifier, space, spaceOptional, type, spaceOrLineOptional } = regexs;
-    const propAttributes =  optional(seq(commas(
+    const propAttributes = optional(seq(commas(
         seq(/\[/, identifier, /.*/, /\]/),
         spaceOrLineOptional
-    ), spaceOrLineOptional  ));
+    ), spaceOrLineOptional));
 
     const propModifier = optional(seq(
         optional(/public/),
@@ -39,26 +41,40 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
         return getSetOrFatArrow;
     })();
 
+    const member = (() => {
+        const initializer = optional(seq(spaceOptional, /=/, spaceOptional, cap(/.*/)));
+        const ending = /;/;
+        const member = seq(initializer, ending);
+        return member;
+    })();
+
     //Regex que captura a toda la propiedad:
     const prop = seq(
         propAttributes,
         propModifier,
         seq(cap(type), space),
         propName,
-        getSetOrFatArrow
+        cap(any(getSetOrFatArrow, member)),
     );
 
+
     const match = prop.exec(code);
+
+
     if (!match) {
         return null;
     } else {
+        const isProperty = getSetOrFatArrow.test(match[3]);
+        const isMember = !isProperty;
+
         return {
             index: match.index,
             length: match[0].length,
             data: {
                 type: match[1],
                 name: match[2],
-                initializer: match[3]
+                initializer: isMember ? match[5] : match[4],
+                isField: isMember
             }
         }
     }

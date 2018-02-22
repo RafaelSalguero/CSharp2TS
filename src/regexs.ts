@@ -14,10 +14,11 @@ export const lineJump =  /(?:\r|\n|(?:\r\n)|(?:\n\r))/;
 /**Regex que encaga con un tipo */
 export const type = (() => {
     const arrayDimension = zeroOrMore(/\[,*\]/);
+    const generic = /<[a-zA-Z\u00C0-\u00FF_0-9,.<>? \t\n\r\[\]]*>/
     const type = seq(
         nonCap(identifier),
         spaceOptional,
-        optional(/<.*>/),
+        optional(generic),
         spaceOptional,
         optional(/\?/),
         arrayDimension
