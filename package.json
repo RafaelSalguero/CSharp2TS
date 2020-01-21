@@ -4,6 +4,10 @@
     "description": "Convert C# POCOs to typescript",
     "version": "0.0.23",
     "publisher": "rafaelsalguero",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RafaelSalguero/CSharp2TS"
+    },
     "engines": {
         "vscode": "^1.5.0"
     },
