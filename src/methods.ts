@@ -4,6 +4,7 @@ import {
 import regexs = require("./regexs");
 import { ParseResult } from "./parse";
 import { maxBodyDepth, maxExpressionDepth } from "./config";
+import { accessModifierRegex } from "./modifiers";
 export interface CSharpParameter {
     name: string;
     type: string;
@@ -34,8 +35,10 @@ export function parseParameters(code: string): CSharpParameter[] {
     } as CSharpParameter));
 }
 
+
+
 const { parseMethodRegex, parseConstructorRegex } = (() => {
-    const modifier = cap(optional(seq(any(/public/, /private/, /protected/), spaceOrLine)));
+    const modifier = cap(accessModifierRegex);
     const async = cap(optional(seq(/async/, spaceOrLine)));
     const parameter = seq(type, spaceOrLine, identifier, optional(spaceOrLine));
     const paramSeparator = seq(/,/, optional(spaceOrLine));

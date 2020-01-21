@@ -128,10 +128,54 @@ suite("Extension Tests", () => {
                 output: "Bar: number;"
             }
         ];
+
         for (const p of testPairs) {
             for (const input of p.inputs) {
                 assert.equal(extension.cs2ts(input, config), p.output, input);
             }
         }
     });
+
+    test("class test", () => {
+        var config: ExtensionConfig = {
+            propertiesToCamelCase: false,
+            recursiveTrimPostfixes: false,
+            trimPostfixes: [],
+            ignoreInitializer: true,
+            removeMethodBodies: true,
+            removeConstructors: false,
+            methodStyle: "signature",
+            byteArrayToString: false,
+            dateToDateOrString: false,
+            removeWithModifier: [],
+            removeNameRegex: "",
+            classToInterface: true,
+            preserveModifiers: false
+        };
+
+        const testPairs: { inputs: string[], output: string }[] = [
+            {
+                inputs: ["class Customer { public string Name { get; } public int Age { get; } }"],
+                output: "interface Customer { Name: string; Age: number; }"
+            },{
+                inputs: ["class Customer\n{ public string Name { get; } public int Age { get; } }"],
+                output: "interface Customer\n{ Name: string; Age: number; }"
+            }, {
+                inputs: ["public partial class Customer { public string Name { get; } public int Age { get; } }"],
+                output: "export interface Customer { Name: string; Age: number; }"
+            }, {
+                inputs: ["public partial class Customer: DTO { public string Name { get; } public int Age { get; } }"],
+                output: "export interface Customer extends DTO { Name: string; Age: number; }"
+            }, {
+                inputs: ["public partial class Customer: Base.DTO, Base.IBusinessObject { public string Name { get; } public int Age { get; } }"],
+                output: "export interface Customer extends Base.DTO, Base.IBusinessObject { Name: string; Age: number; }"
+            },
+        ];
+
+        for (const p of testPairs) {
+            for (const input of p.inputs) {
+                assert.equal(extension.cs2ts(input, config), p.output, input);
+            }
+        }
+    })
 });

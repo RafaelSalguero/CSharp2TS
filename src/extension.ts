@@ -65,6 +65,9 @@ type MatchResult = Match | null;
 
 
 function csPublicMember(code: string, config: ExtensionConfig): MatchResult {
+    
+
+
     var patt = /public\s*(?:(?:abstract)|(?:sealed))?(\S*)\s+(.*)\s*{/;
     var arr = patt.exec(code);
 

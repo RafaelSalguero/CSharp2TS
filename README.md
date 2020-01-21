@@ -134,3 +134,6 @@ On your workspace or user `settings.json`:
 - New config: `preserveModifiers`. Preserve properties and field modifiers. 
 - New config: `removeWithModifier`. Remove fields and properties with the given modifiers.
 - New config: `removeNameRegex`. Remove fields and properties that its name match the given regex.
+
+#### 0.0.23
+- Improved parsing for `partial` classes and multiple inheritances

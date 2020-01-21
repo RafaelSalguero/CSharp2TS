@@ -12,6 +12,7 @@ import regexs = require("./regexs");
 
 import { ParseResult } from "./parse";
 import { CsType, splitTopLevel, parseType } from "./types";
+import { accessModifierRegex } from "./modifiers";
 
 export function parseInherits(code: string): string[] {
     const types = splitTopLevel(code, [","]);
@@ -20,17 +21,17 @@ export function parseInherits(code: string): string[] {
 
 export function parseClass(code: string): ParseResult<CSharpClass> | null {
     const modifier = optional(seq(
-        optional(any(seq(cap(/public/), /\s+/), /private\s+/, /protected\s+/, /internal\s+/)),
-        optional(/\s+sealed\s+/),
-        optional(/\s+abstract\s+/),
+        cap(accessModifierRegex),
+        optional(/partial\s+/),
+        optional(/(?:sealed|abstract)\s+/),
     ));
     const { identifier, space, spaceOptional, type, spaceOrLine } = regexs;
-    const classType = cap(any(/class\s+/, /interface\s+/, /struct\s+/));
+    const classType = seq(cap(any(/class/, /interface/, /struct/)), space);
     const className = cap(identifier);
-    const separator = seq(/,/, optional(spaceOrLine));
+    const separator = /,\s*/;
 
     const inherits = optional(seq(
-        /\s+:\s/,
+        /\s*:\s/,
         cap(commas(type, separator))
     ));
 
@@ -49,7 +50,7 @@ export function parseClass(code: string): ParseResult<CSharpClass> | null {
             index: match.index,
             length: match[0].length,
             data: {
-                isPublic: match[1] == "public",
+                isPublic: (match[1] || "").trim() == "public",
                 type: match[2] as any,
                 name: match[3],
                 inherits: parseInherits(match[4] || "")

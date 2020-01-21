@@ -13,15 +13,13 @@ export const lineJump =  /(?:\r|\n|(?:\r\n)|(?:\n\r))/;
 
 /**Regex que encaga con un tipo */
 export const type = (() => {
-    const arrayDimension = zeroOrMore(/\[,*\]/);
+    const arrayDimension = oneOrMore(/\[,*\]/);
     const generic = /<[a-zA-Z\u00C0-\u00FF_0-9,.<>? \t\n\r\[\]]*>/
     const type = seq(
         nonCap(identifier),
-        spaceOptional,
-        optional(generic),
-        spaceOptional,
-        optional(/\?/),
-        arrayDimension
+        optional(seq(spaceOptional,generic)),
+        optional(seq(spaceOptional, /\?/)),
+        optional(seq(spaceOptional, arrayDimension)),
     );
     return type;
 })();
