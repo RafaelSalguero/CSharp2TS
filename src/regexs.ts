@@ -1,5 +1,5 @@
 import {
-    any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore
+    any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore, neasted
 } from "./compose";
 
 export const identifier = /[a-zA-Z\u00C0-\u00FF_][a-zA-Z\u00C0-\u00FF_0-9]*/;
@@ -14,7 +14,7 @@ export const lineJump =  /(?:\r|\n|(?:\r\n)|(?:\n\r))/;
 /**Regex que encaga con un tipo */
 export const type = (() => {
     const arrayDimension = oneOrMore(/\[,*\]/);
-    const generic = /<[a-zA-Z\u00C0-\u00FF_0-9,.<>? \t\n\r\[\]]*>/
+    const generic = neasted("<", ">", 6, false);
     const type = seq(
         nonCap(identifier),
         optional(seq(spaceOptional,generic)),

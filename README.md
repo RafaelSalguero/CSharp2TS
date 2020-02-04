@@ -137,3 +137,6 @@ On your workspace or user `settings.json`:
 
 #### 0.0.23
 - Improved parsing for `partial` classes and multiple inheritances
+
+#### 0.0.24
+- Bug fix: Incorrectly parsed generic type on certain conditions. Thanks @labarilem

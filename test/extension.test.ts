@@ -169,7 +169,17 @@ suite("Extension Tests", () => {
             }, {
                 inputs: ["public partial class Customer: Base.DTO, Base.IBusinessObject { public string Name { get; } public int Age { get; } }"],
                 output: "export interface Customer extends Base.DTO, Base.IBusinessObject { Name: string; Age: number; }"
-            },
+            }, {
+                inputs: [`public MyClass(IServices services,
+                    ILogger<T> logger,
+                    IType<U> value) :
+                    base(services)
+                  {
+                    _logger = logger;
+                    _value = value;
+                  }`],
+                  output: "new(services: IServices, logger: ILogger<T>, value: IType<U>): MyClass;"
+            }
         ];
 
         for (const p of testPairs) {
