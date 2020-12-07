@@ -106,6 +106,7 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
                 'sbyte', "SByte", "System.SByte",
                 'short', "Int16", "System.Int16",
                 'ushort', "UInt16", "System.UInt16",
+                'uint', "UInt32", "System.UInt32",
                 'ulong', "UInt64", "System.UInt64"
             ],
             genericMin: 0,
