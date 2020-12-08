@@ -140,3 +140,6 @@ On your workspace or user `settings.json`:
 
 #### 0.0.24
 - Bug fix: Incorrectly parsed generic type on certain conditions. Thanks @labarilem
+
+#### 0.0.25
+- Support for C# 9
