@@ -198,7 +198,17 @@ _value = value;
                     {
                         public int Quantity { get; init; }
                         public string Name { get; init; }
-                    }`
+                    }`,
+                    `public record Product
+                    {
+                        int Quantity;
+                        string Name;
+                    }`,
+                    `public record Product
+                    {
+                        public int Quantity;
+                        public string Name;
+                    }`,
                 ],
                 output: 
                     `export interface Product {
