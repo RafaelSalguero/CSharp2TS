@@ -8,7 +8,6 @@ import * as assert from 'assert';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-import * as vscode from 'vscode';
 import * as extension from '../src/extension';
 import { ExtensionConfig } from "../src/config";
 
@@ -74,7 +73,7 @@ suite("Extension Tests", () => {
 
         const testPairs: { inputs: string[], output: string }[] = [
             {
-                inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age {get;set;}"],
+                inputs: ["int  Age  { get;   set;  }", "int Age {get;set;}", "int Age {set; get;}", "int Age {get;set;}", "int Age {get;init;}", "int Age {init;get;}", "int Age {get;   init; }"],
                 output: "Age: number;"
             },
             {
@@ -94,7 +93,7 @@ suite("Extension Tests", () => {
                 output: "names: string[,][,,,];"
             },
             {
-                inputs: ["List<string> List { get; set; }"],
+                inputs: ["List<string> List { get; set; }", "List<string> List { get; init; }"],
                 output: "List: string[];"
             },
             {
@@ -159,7 +158,7 @@ suite("Extension Tests", () => {
                 output: "interface Customer { Name: string; Age: number; }"
             },{
                 inputs: ["class Customer\n{ public string Name { get; } public int Age { get; } }"],
-                output: "interface Customer\n{ Name: string; Age: number; }"
+                output: "interface Customer { Name: string; Age: number; }"
             }, {
                 inputs: ["public partial class Customer { public string Name { get; } public int Age { get; } }"],
                 output: "export interface Customer { Name: string; Age: number; }"
@@ -170,15 +169,42 @@ suite("Extension Tests", () => {
                 inputs: ["public partial class Customer: Base.DTO, Base.IBusinessObject { public string Name { get; } public int Age { get; } }"],
                 output: "export interface Customer extends Base.DTO, Base.IBusinessObject { Name: string; Age: number; }"
             }, {
-                inputs: [`public MyClass(IServices services,
-                    ILogger<T> logger,
-                    IType<U> value) :
-                    base(services)
-                  {
-                    _logger = logger;
-                    _value = value;
-                  }`],
-                  output: "new(services: IServices, logger: ILogger<T>, value: IType<U>): MyClass;"
+                inputs: [
+`public MyClass(IServices services,
+    ILogger<T> logger,
+    IType<U> value) :
+    base(services)
+{
+_logger = logger;
+_value = value;
+}`],
+                  output: 
+`new(services: IServices,
+    logger: ILogger<T>,
+    value: IType<U>): MyClass;`
+            }, {
+                inputs: [
+                    "public record PoirotAutoRunModeDto ( public int PoirotAutoRunMode, public string Description );",
+                    "public record PoirotAutoRunModeDto ( int PoirotAutoRunMode, string Description );",
+                ],
+                output: "export interface PoirotAutoRunModeDto { PoirotAutoRunMode: number; Description: string; }"
+            }, {
+                inputs: [
+                    `public record Product (
+                        public int Quantity,
+                        public string Name
+                    );`,
+                    `public record Product
+                    {
+                        public int Quantity { get; init; }
+                        public string Name { get; init; }
+                    }`
+                ],
+                output: 
+                    `export interface Product {
+                        Quantity: number;
+                        Name: string;
+                    }`
             }
         ];
 

@@ -38,9 +38,9 @@ export function parseProperty(code: string): ParseResult<CSharpProperty> | null 
     const getSetOrFatArrow = (() => {
         const getSetModifier = optional(any(/internal/, /public/, /private/, /protected/));
         const get = seq(getSetModifier, spaceOptional, /get\s*;/);
-        const set = seq(getSetModifier, spaceOptional, /set\s*;/);
+        const set =  seq(getSetModifier, spaceOptional, any(/set\s*;/, /init\s*;/));
         const initializer = optional(seq(spaceOptional, /=/, spaceOptional, cap(/.*/), /;/));
-        const getSet = seq(/{/, spaceOptional, get, spaceOptional, optional(set), spaceOptional, /}/, initializer);
+        const getSet = seq(/{/, spaceOptional, any(seq( get, spaceOptional, optional(set)), seq(optional(set), spaceOptional, get)), spaceOptional, /}/, initializer);
         const fatArrow = /=>.*;/;
         const getSetOrFatArrow = any(getSet, fatArrow);
         return getSetOrFatArrow;

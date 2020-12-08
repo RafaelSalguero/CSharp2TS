@@ -11,11 +11,14 @@ export const anyChar = /(?:.|\n|\r)/;
 export const spaceNotLine = /[ \t]/;
 export const lineJump =  /(?:\r|\n|(?:\r\n)|(?:\n\r))/;
 
+export const namespace = zeroOrMore(seq(identifier, /\./));
+
 /**Regex que encaga con un tipo */
 export const type = (() => {
     const arrayDimension = oneOrMore(/\[,*\]/);
     const generic = neasted("<", ">", 6, false);
     const type = seq(
+        namespace,
         nonCap(identifier),
         optional(seq(spaceOptional,generic)),
         optional(seq(spaceOptional, /\?/)),

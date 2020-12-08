@@ -5,9 +5,9 @@ import * as vscode from 'vscode';
 import * as types from './types';
 
 import { parseProperty, CSharpProperty } from "./properties";
-import { parseMethod, CSharpMethod, CSharpParameter, parseConstructor } from "./methods";
+import { parseMethod, CSharpMethod, CSharpParameter, parseConstructor, parseRecord } from "./methods";
 
-import { generateProperty, trimMemberName, generateMethod, generateConstructor, generateClass } from "./generators";
+import { generateProperty, trimMemberName, generateMethod, generateConstructor, generateClass, generateRecord } from "./generators";
 import { ExtensionConfig } from "./config";
 import { ParseResult } from "./parse";
 import compose = require("./compose");
@@ -33,6 +33,7 @@ function csFunction<T>(parse: (code: string) => ParseResult<T> | null, generate:
 /**Convert a c# automatic or fat arrow property to a typescript property. Returns null if the string didn't match */
 const csAutoProperty = csFunction(parseProperty, generateProperty);
 /**Convert a C# method to a typescript method signature */
+const csRecord = csFunction(parseRecord, generateRecord);
 const csMethod = csFunction(parseMethod, generateMethod);
 const csConstructor = csFunction(parseConstructor, generateConstructor);
 const csCommentSummary = csFunction(parseXmlDocBlock, generateJsDoc);
@@ -93,6 +94,7 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
     code = code.substr(startIndex);
 
     var functions: ((code: string, config: ExtensionConfig) => MatchResult)[] = [
+        csRecord,
         csClass,
         csAutoProperty,
         csConstructor,

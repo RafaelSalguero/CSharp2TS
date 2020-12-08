@@ -2,8 +2,8 @@ import * as vscode from 'vscode';
 import * as types from './types';
 import { ExtensionConfig } from "./config";
 
-import { parseProperty, CSharpProperty } from "./properties";
-import { parseMethod, CSharpMethod, CSharpParameter, CSharpConstructor, parseConstructor } from "./methods";
+import { CSharpProperty } from "./properties";
+import { CSharpMethod, CSharpParameter, CSharpConstructor, CSharpRecord } from "./methods";
 import { CSharpClass } from "./classes";
 
 function generateType(type: string, config: ExtensionConfig): string {
@@ -11,9 +11,9 @@ function generateType(type: string, config: ExtensionConfig): string {
     return trimMemberName(parseType ? types.convertToTypescript(parseType, config) : type, config);
 }
 
-function generateParam(value: CSharpParameter, config: ExtensionConfig): string {
+function generateParam(value: CSharpParameter, separator: string, config: ExtensionConfig): string {
     const tsType = generateType(value.type, config);
-    return value.name + ": " + tsType;
+    return value.name + ": " + tsType + value.spaceBeforeComma + separator + value.spaceAfterComma;
 }
 
 function generateControllerBody(name: string, params: CSharpParameter[]): string {
@@ -33,7 +33,7 @@ function generateControllerBody(name: string, params: CSharpParameter[]): string
 }
 
 export function generateMethod(value: CSharpMethod, config: ExtensionConfig): string {
-    const paramList = value.parameters.map(x => generateParam(x, config)).join(", ");
+    const paramList = value.parameters.map((x, i) => generateParam(x, i == (value.parameters.length - 1) ? "" : ",", config)).join("");
     const returnType = generateType(value.returnType, config);
 
     const fullType = "(" + paramList + "): " + returnType;
@@ -47,8 +47,9 @@ export function generateMethod(value: CSharpMethod, config: ExtensionConfig): st
     );
 }
 
+
 export function generateConstructor(value: CSharpConstructor, config: ExtensionConfig): string {
-    const paramList = value.parameters.map(x => generateParam(x, config)).join(", ");
+    const paramList = value.parameters.map((x, i) => generateParam(x,  i == (value.parameters.length - 1) ? "" : ",", config)).join("");
     return config.removeConstructors ? "" : ("new(" + paramList + "): " + value.name + ";");
 }
 
@@ -56,6 +57,20 @@ const myClass = {
     myMethod: (hola: boolean): string => {
         throw new Error("TODO: Implement me");
     }
+}
+
+export function generateRecord(value: CSharpRecord, config: ExtensionConfig): string {
+    const paramList = value.parameters.map(x => generateParam(x, ";", config)).join("");
+
+    const signature = generateClass({
+        name: value.name,
+        inherits: [],
+        isPublic: value.isPublic,
+        type: "class"
+    }, config);
+
+    const full = signature + value.spaceAfterOpenPar + paramList + "}";
+    return full;
 }
 
 
@@ -91,9 +106,9 @@ export function generateClass(x: CSharpClass, config: ExtensionConfig): string {
     const keyword = config.classToInterface ? "interface" : "class";
     const prefix = `${modifier}${keyword} ${name}`;
     if (inheritsTypes.length > 0) {
-        return `${prefix} extends ${inheritsTypes.join(", ")}`;
+        return `${prefix} extends ${inheritsTypes.join(", ")} {`;
     } else {
-        return prefix;
+        return `${prefix} {`;
     }
 }
 

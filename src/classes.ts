@@ -26,7 +26,7 @@ export function parseClass(code: string): ParseResult<CSharpClass> | null {
         optional(/(?:sealed|abstract)\s+/),
     ));
     const { identifier, space, spaceOptional, type, spaceOrLine } = regexs;
-    const classType = seq(cap(any(/class/, /interface/, /struct/)), space);
+    const classType = seq(cap(any(/class/, /interface/, /struct/, /record/)), space);
     const className = cap(identifier);
     const separator = /,\s*/;
 
@@ -35,11 +35,14 @@ export function parseClass(code: string): ParseResult<CSharpClass> | null {
         cap(commas(type, separator))
     ));
 
+    const openCurly = seq(regexs.spaceOrLineOptional, /\{/)
+
     const classRegex = seq(
         modifier,
         classType,
         className,
-        inherits
+        inherits,
+        openCurly
     );
 
     const match = classRegex.exec(code);

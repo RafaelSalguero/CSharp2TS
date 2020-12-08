@@ -1,6 +1,6 @@
 
 import { any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore } from "./compose";
-import { identifier, space, spaceOptional } from "./regexs";
+import { identifier, namespace as namespaceRegex, space, spaceOptional } from "./regexs";
 import { ExtensionConfig } from "./config";
 
 enum CsTypeCategory {
@@ -31,6 +31,8 @@ enum CsTypeCategory {
 }
 
 export interface CsType {
+    /**Type namespace */
+    namespace: string;
     /**Type name */
     name: string;
     /**Generic arguments */
@@ -206,11 +208,12 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
             return "any";
         }
         case CsTypeCategory.Other: {
+            const fullname = value.namespace + value.name;
             if (value.generics.length > 0) {
                 var generics = value.generics.map(x => convertToTypescript(x, config)).reduce((a, b) => a ? a + ", " + b : b, "");
-                return `${value.name}<${generics}>`;
+                return `${fullname}<${generics}>`;
             } else {
-                return value.name;
+                return fullname;
             }
         }
     }
@@ -277,6 +280,7 @@ export function parseType(code: string): CsType | null {
     code = code.replace(" ", "");
 
     const patt = seq(
+        cap(namespaceRegex),
         cap(identifier),
         spaceOptional,
         optional(/<(.*)>/),
@@ -292,10 +296,11 @@ export function parseType(code: string): CsType | null {
     }
 
     //Pattern groups:
-    const name = arr[1];
-    const genericsStr = splitCommas(arr[2] || "");
-    const nullable = arr[3] == "?";
-    const arraysStr = arr[4] || "";
+    const namespace = arr[1];
+    const name = arr[2];
+    const genericsStr = splitCommas(arr[3] || "");
+    const nullable = arr[4] == "?";
+    const arraysStr = arr[5] || "";
 
     const arrays = parseArray(arraysStr);
     const genericsOrNull = genericsStr.map(x => parseType(x));
@@ -306,13 +311,14 @@ export function parseType(code: string): CsType | null {
 
 
     if (nullable) {
-        var underlyingType = { name, generics, array: [] };
+        var underlyingType = { namespace: "", name, generics, array: [] };
         return {
+            namespace: "",
             name: "Nullable",
             generics: [underlyingType],
             array: arrays
         };
     } else {
-        return { name, generics, array: arrays }
+        return { name, generics, array: arrays, namespace: namespace }
     }
 }
