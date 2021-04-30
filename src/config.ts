@@ -26,6 +26,10 @@ export interface ExtensionConfig {
     classToInterface: boolean;
     /**True to preserve fields and property modifiers. Default is false */
     preserveModifiers: boolean;
+    /**True to remove special keywords virtual and #nullable disable */
+    removeSpecialKeywords: boolean;
+    /**True to remove imports/using statements */
+    removeUsings: boolean;
 }
 
 export const maxBodyDepth = 8;

@@ -119,9 +119,25 @@ function findMatch(code: string, startIndex: number, config: ExtensionConfig): M
     } : null;
 }
 
+function removeSpecialKeywords(code: string): string {
+    return code.replace(/\s+virtual\s+/g, ' ').replace(/#nullable\s*(disable|enable)\s*\n/g,'');
+}
+
+function removeUsings(code: string): string {
+    return code.replace(/using\s+[^;]+;\s*\n/g, '');
+}
+
 /**Convert c# code to typescript code */
 export function cs2ts(code: string, config: ExtensionConfig): string {
     var ret = "";
+
+    if (config.removeSpecialKeywords) {
+        code = removeSpecialKeywords(code);
+    }
+
+    if (config.removeUsings) {
+        code = removeUsings(code);
+    }
 
     var index = 0;
     while (true) {
@@ -190,6 +206,8 @@ function getConfiguration(): ExtensionConfig {
     const removeNameRegex = vscode.workspace.getConfiguration('csharp2ts').get("removeNameRegex") as string;
     const classToInterface = vscode.workspace.getConfiguration('csharp2ts').get("classToInterface") as boolean;
     const preserveModifiers = vscode.workspace.getConfiguration('csharp2ts').get("preserveModifiers") as boolean;
+    const removeSpecialKeywords = vscode.workspace.getConfiguration('csharp2ts').get("removeSpecialKeywords") as boolean;
+    const removeUsings = vscode.workspace.getConfiguration('csharp2ts').get("removeUsings") as boolean;
 
     return {
         propertiesToCamelCase,
@@ -204,7 +222,9 @@ function getConfiguration(): ExtensionConfig {
         removeWithModifier,
         removeNameRegex,
         classToInterface,
-        preserveModifiers
+        preserveModifiers,
+        removeSpecialKeywords,
+        removeUsings
     };
 }
 
