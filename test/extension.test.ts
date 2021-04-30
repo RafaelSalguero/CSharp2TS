@@ -27,7 +27,9 @@ suite("Extension Tests", () => {
             removeWithModifier: ["private", "internal"],
             removeNameRegex: "_[a-z][a-zA-Z0-9]*",
             classToInterface: true,
-            preserveModifiers: false
+            preserveModifiers: false,
+            removeSpecialKeywords: true,
+            removeUsings: true
         };
         const testPairs: { inputs: string[], output: string }[] = [
             {
@@ -68,7 +70,9 @@ suite("Extension Tests", () => {
             removeWithModifier: [],
             removeNameRegex: "",
             classToInterface: true,
-            preserveModifiers: false
+            preserveModifiers: false,
+            removeSpecialKeywords: true,
+            removeUsings: true
         };
 
         const testPairs: { inputs: string[], output: string }[] = [
@@ -149,7 +153,9 @@ suite("Extension Tests", () => {
             removeWithModifier: [],
             removeNameRegex: "",
             classToInterface: true,
-            preserveModifiers: false
+            preserveModifiers: false,
+            removeSpecialKeywords: true,
+            removeUsings: true
         };
 
         const testPairs: { inputs: string[], output: string }[] = [
