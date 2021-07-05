@@ -19,7 +19,7 @@ On your workspace or user `settings.json`:
 ```js
 // Place your settings in this file to overwrite default and user settings.
 {
-    //True for camelCase, false for preserving original name. Default is true
+    //True for camelCase, false for preserving original name. Default is false
     "csharp2ts.propertiesToCamelCase": false,
     //Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive.
     "csharp2ts.trimPostfixes": "",
