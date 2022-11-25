@@ -25,7 +25,7 @@ On your workspace or user `settings.json`:
     "csharp2ts.trimPostfixes": "",
     /** Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true) */
     "csharp2ts.recursiveTrimPostfixes": false,
-    /** Ignore property initializer     */
+    /** Ignore property initializer */
     "csharp2ts.ignoreInitializer": true
     /** True to remove method bodies, false to preserve the body as-is */
     "csharp2ts.removeMethodBodies": true,

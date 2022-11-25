@@ -121,12 +121,12 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
             category: CsTypeCategory.String,
             types: ["Guid", "string", "System.String", "String"],
             genericMin: 0,
-            genericMax: 0
+            genericMax: 0,
         }, {
             category: CsTypeCategory.Any,
             types: ["object", "System.Object", "dynamic"],
             genericMin: 0,
-            genericMax: 0
+            genericMax: 0,
         }, {
             category: CsTypeCategory.Task,
             types: ["Task", "System.Threading.Tasks.Task"],
@@ -137,7 +137,7 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
             types: ["Tuple", "System.Tuple"],
             genericMin: 1,
             genericMax: 1000
-        },
+        }
     ];
 
     const cat = categories.filter(cat => cat.types.indexOf(x.name) != -1 && x.generics.length >= cat.genericMin && x.generics.length <= cat.genericMax)[0];
