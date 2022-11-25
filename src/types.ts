@@ -26,7 +26,7 @@ enum CsTypeCategory {
     /**Unidentified type */
     Other,
     /**Task/promise task */
-    Task,
+    Task
 }
 
 export interface CsType {
@@ -75,78 +75,78 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
     }
 
     const categories: TypeCategory[] = [
-      {
-          category: CsTypeCategory.Enumerable,
-          types: ["List", "ObservableCollection", "Array", "IEnumerable", "IList", "IReadOnlyList", "Collection", "ICollection", "ISet", "HashSet"],
-          genericMin: 0,
-          genericMax: 1,
-      },
-      {
-          category: CsTypeCategory.Nullable,
-          types: ["Nullable", "System.Nullable"],
-          genericMin: 1,
-          genericMax: 1,
-      },
-      {
-          category: CsTypeCategory.Dictionary,
-          types: ["Dictionary", "IDictionary", "IReadOnlyDictionary"],
-          genericMin: 2,
-          genericMax: 2,
-      },
-      {
-          category: CsTypeCategory.Boolean,
-          types: ["bool", "Boolean", "System.Boolean"],
-          genericMin: 0,
-          genericMax: 0,
-      },
-      {
-          category: CsTypeCategory.Number,
-          types: [
-              "int", "Int32", "System.Int32",
-              "float", "Single", "System.Single",
-              "double", "Double", "System.Double",
-              "decimal", "Decimal", "System.Decimal",
-              "long", "Int64", "System.Int64",
-              ...byteTypeName,
-              "sbyte", "SByte", "System.SByte",
-              "short", "Int16", "System.Int16",
-              "ushort", "UInt16", "System.UInt16",
-              "uint", "UInt32", "System.UInt32",
-              "ulong", "UInt64", "System.UInt64",
-          ],
-          genericMin: 0,
-          genericMax: 0,
-      },
-      {
-          category: CsTypeCategory.Date,
-          types: ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"],
-          genericMin: 0,
-          genericMax: 0,
-      },
-      {
-          category: CsTypeCategory.String,
-          types: ["Guid", "string", "System.String", "String"],
-          genericMin: 0,
-          genericMax: 0,
-      },
-      {
-          category: CsTypeCategory.Any,
-          types: ["object", "System.Object", "dynamic"],
-          genericMin: 0,
-          genericMax: 0,
-      },
-      {
-          category: CsTypeCategory.Task,
-          types: ["Task", "System.Threading.Tasks.Task"],
-          genericMin: 0,
-          genericMax: 1,
-      },
-      {
-          category: CsTypeCategory.Tuple,
-          types: ["Tuple", "System.Tuple"],
-          genericMin: 1,
-          genericMax: 1000,
-      },
+        {
+            category: CsTypeCategory.Enumerable,
+            types: ["List", "ObservableCollection", "Array", "IEnumerable", "IList", "IReadOnlyList", "Collection", "ICollection", "ISet", "HashSet"],
+            genericMin: 0,
+            genericMax: 1,
+        },
+        {
+            category: CsTypeCategory.Nullable,
+            types: ["Nullable", "System.Nullable"],
+            genericMin: 1,
+            genericMax: 1,
+        },
+        {
+            category: CsTypeCategory.Dictionary,
+            types: ["Dictionary", "IDictionary", "IReadOnlyDictionary"],
+            genericMin: 2,
+            genericMax: 2,
+        },
+        {
+            category: CsTypeCategory.Boolean,
+            types: ["bool", "Boolean", "System.Boolean"],
+            genericMin: 0,
+            genericMax: 0,
+        },
+        {
+            category: CsTypeCategory.Number,
+            types: [
+                "int", "Int32", "System.Int32",
+                "float", "Single", "System.Single",
+                "double", "Double", "System.Double",
+                "decimal", "Decimal", "System.Decimal",
+                "long", "Int64", "System.Int64",
+                ...byteTypeName,
+                "sbyte", "SByte", "System.SByte",
+                "short", "Int16", "System.Int16",
+                "ushort", "UInt16", "System.UInt16",
+                "uint", "UInt32", "System.UInt32",
+                "ulong", "UInt64", "System.UInt64",
+            ],
+            genericMin: 0,
+            genericMax: 0,
+        },
+        {
+            category: CsTypeCategory.Date,
+            types: ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"],
+            genericMin: 0,
+            genericMax: 0,
+        },
+        {
+            category: CsTypeCategory.String,
+            types: ["Guid", "string", "System.String", "String"],
+            genericMin: 0,
+            genericMax: 0,
+        },
+        {
+            category: CsTypeCategory.Any,
+            types: ["object", "System.Object", "dynamic"],
+            genericMin: 0,
+            genericMax: 0,
+        },
+        {
+            category: CsTypeCategory.Task,
+            types: ["Task", "System.Threading.Tasks.Task"],
+            genericMin: 0,
+            genericMax: 1,
+        },
+        {
+            category: CsTypeCategory.Tuple,
+            types: ["Tuple", "System.Tuple"],
+            genericMin: 1,
+            genericMax: 1000,
+        },
     ];
 
     const cat = categories.filter(cat => cat.types.indexOf(x.name) != -1 && x.generics.length >= cat.genericMin && x.generics.length <= cat.genericMax)[0];
@@ -181,9 +181,8 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
                 throw "";
             }
         }
-
         case CsTypeCategory.Dictionary: {
-            let keyType = getTypeCategory(value.generics[0]) == CsTypeCategory.Number ? "number" : "string";
+            let keyType = (getTypeCategory(value.generics[0]) == CsTypeCategory.Number) ? "number" : "string";
             if (config.dictionaryToRecord) {
                 return `Record<${keyType}, ${convertToTypescript(value.generics[1], config)}>`;
             }
@@ -193,9 +192,9 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
             return `${convertToTypescript(value.generics[0], config)} | null`;
         }
         case CsTypeCategory.Tuple: {
-            let x: { Item1: number; Item2: boolean };
+            let x: { Item1: number, Item2: boolean };
             let tupleElements = value.generics.map((v, i) => `Item${i + 1}: ${convertToTypescript(v, config)}`);
-            let join = tupleElements.reduce((a, b) => (a ? a + ", " + b : b), "");
+            let join = tupleElements.reduce((a, b) => a ? a + ", " + b : b, "");
             return `{ ${join} }`;
         }
         case CsTypeCategory.Task: {
@@ -221,7 +220,7 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
         case CsTypeCategory.Other: {
             const fullname = value.namespace + value.name;
             if (value.generics.length > 0) {
-                var generics = value.generics.map((x) => convertToTypescript(x, config)).reduce((a, b) => (a ? a + ", " + b : b), "");
+                var generics = value.generics.map(x => convertToTypescript(x, config)).reduce((a, b) => a ? a + ", " + b : b, "");
                 return `${fullname}<${generics}>`;
             } else {
                 return fullname;
@@ -314,11 +313,11 @@ export function parseType(code: string): CsType | null {
     const arraysStr = arr[5] || "";
 
     const arrays = parseArray(arraysStr);
-    const genericsOrNull = genericsStr.map((x) => parseType(x));
-    const genericParseError = genericsOrNull.filter((x) => x == null).length > 0;
+    const genericsOrNull = genericsStr.map(x => parseType(x));
+    const genericParseError = genericsOrNull.filter(x => x == null).length > 0;
 
     if (genericParseError) return null;
-    const generics = genericsOrNull.map((x) => x!);
+    const generics = genericsOrNull.map(x => x!);
 
     if (nullable) {
         var underlyingType = { namespace: "", name, generics, array: [] };
