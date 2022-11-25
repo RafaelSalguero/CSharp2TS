@@ -7,7 +7,7 @@ export interface ExtensionConfig {
   recursiveTrimPostfixes: boolean;
   /**ignoreInitializer */
   ignoreInitializer: boolean;
-  /** True to remove method bodies, false to preserve the body as-is*/
+  /**True to remove method bodies, false to preserve the body as-is */
   removeMethodBodies: boolean;
   /**True to remove class constructors, false to treat then like any other method */
   removeConstructors: boolean;
