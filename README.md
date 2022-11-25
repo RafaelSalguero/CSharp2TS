@@ -1,7 +1,6 @@
 # csharp2ts README
 
 **How to use**
-
 - Select the desired C# code
 - Open the command pallete and run `Convert C# to TypeScript`
 
@@ -10,13 +9,11 @@
 Simple C# POCOs to TypeScript converter.
 
 Supports:
-
 - Automatic properties
 - Remove attributes
 - Detect common types such as int, long, ...
 
 ## Settings
-
 On your workspace or user `settings.json`:
 
 ```js
@@ -55,7 +52,6 @@ On your workspace or user `settings.json`:
 ```
 
 ## Release Notes
-
 ### 0.0.0
 
 - Initial release of the tool
@@ -75,22 +71,17 @@ On your workspace or user `settings.json`:
 - Added detection for scope modifiers on C# properties
 
 ### 0.0.6
-
 ### 0.0.7
-
 - Fixed readme animation
 
 ### 0.0.8
-
 - Bug fix: Automatic properties without any visibility modifiers where skipping line jumps
 
 ### 0.0.9
-
 - Support for the 'new' modifier on automatic properties
 - Support for C# fat arrow automatic properties
 
 ### 0.0.10
-
 - Full C# type parser
 - Support for C# generics
 - Support for nullable types: Convert `int?` or `Nullable<int>` to `int | null`
@@ -99,33 +90,26 @@ On your workspace or user `settings.json`:
 - Convert C# `List<T>` to `T[]`
 
 ### 0.0.11
-
 - Bug fix: Getter only properties where not correctly parsed
 
 ### 0.0.12
-
 - Support for cammelCase/PascalCase. Configurable with the `"csharp2ts.propertiesToCamelCase"` setting
 
 ### 0.0.13
-
 - Documentation for settings added
 
 ### 0.0.14
-
 - new `trimPostfixes` and `recursiveTrimPostfixes` config. Thanks amadare42
 
 ### 0.0.15
-
 - `csharp2ts.propertiesToCamelCase` is set to `false` by default
 
 ### 0.0.16
-
 - Bug fix: Property initializer correctly parsed
 - New `csharp2ts.ignoreInitializer` config
 - `double` correctly parsed
 
 ### 0.0.17
-
 - Support method and constructor signature conversion and body removing
 - Emit method signature or method empty implementation, see the `csharp2ts.methodStyle` configuration
 - Added a C# XML Docs parser, improving generated JSDoc
@@ -133,25 +117,20 @@ On your workspace or user `settings.json`:
 - Support for the `Task` type
 
 ### 0.0.18
-
 - Bug fix: Support for international characters on identifiers
 
 ### 0.0.19
-
 - Bug fix: Support for international characters on type names
 
 #### 0.0.20
-
 - Improved attribute parsing and removing
 - New method body style `controller`
 
 #### 0.0.21
-
 - Improved class constructor parsing
 - New configuration for type generators: `byteArrayToString` and `dateToDateOrString`
 
 #### 0.0.22
-
 - Bug fix: Support for fields
 - Bug fix: Translation was wrong on some special cases with generic types mixed with arrays
 - New config: `classToInterface`. Convert `class` to `interface` or `class`
@@ -160,22 +139,17 @@ On your workspace or user `settings.json`:
 - New config: `removeNameRegex`. Remove fields and properties that its name match the given regex.
 
 #### 0.0.23
-
 - Improved parsing for `partial` classes and multiple inheritances
 
 #### 0.0.24
-
 - Bug fix: Incorrectly parsed generic type on certain conditions. Thanks @labarilem
 
 #### 0.0.25
-
 - Support for C# 9
 
 ### 0.0.26
-
 - New config: removeSpecialKeywords Remove virtual and #nullable statements. Thanks @supermaz
 - New config: removeUsings Remove using/import statements. Thanks @supermaz
 
 ### 0.0.27
-
 - New config: dictionaryToRecord Convert `Dictionary` to `Record`. Thanks @corwindickey
