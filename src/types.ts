@@ -79,27 +79,23 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
             category: CsTypeCategory.Enumerable,
             types: ["List", "ObservableCollection", "Array", "IEnumerable", "IList", "IReadOnlyList", "Collection", "ICollection", "ISet", "HashSet"],
             genericMin: 0,
-            genericMax: 1,
-        },
-        {
+            genericMax: 1
+        }, {
             category: CsTypeCategory.Nullable,
             types: ["Nullable", "System.Nullable"],
             genericMin: 1,
-            genericMax: 1,
-        },
-        {
+            genericMax: 1
+        }, {
             category: CsTypeCategory.Dictionary,
             types: ["Dictionary", "IDictionary", "IReadOnlyDictionary"],
             genericMin: 2,
-            genericMax: 2,
-        },
-        {
+            genericMax: 2
+        }, {
             category: CsTypeCategory.Boolean,
             types: ["bool", "Boolean", "System.Boolean"],
             genericMin: 0,
-            genericMax: 0,
-        },
-        {
+            genericMax: 0
+        }, {
             category: CsTypeCategory.Number,
             types: [
                 "int", "Int32", "System.Int32",
@@ -112,40 +108,35 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
                 "short", "Int16", "System.Int16",
                 "ushort", "UInt16", "System.UInt16",
                 "uint", "UInt32", "System.UInt32",
-                "ulong", "UInt64", "System.UInt64",
+                "ulong", "UInt64", "System.UInt64"
             ],
             genericMin: 0,
-            genericMax: 0,
-        },
-        {
+            genericMax: 0
+        }, {
             category: CsTypeCategory.Date,
             types: ["DateTime", "System.DateTime", "DateTimeOffset", "System.DateTimeOffset"],
             genericMin: 0,
-            genericMax: 0,
-        },
-        {
+            genericMax: 0
+        }, {
             category: CsTypeCategory.String,
             types: ["Guid", "string", "System.String", "String"],
             genericMin: 0,
-            genericMax: 0,
-        },
-        {
+            genericMax: 0
+        }, {
             category: CsTypeCategory.Any,
             types: ["object", "System.Object", "dynamic"],
             genericMin: 0,
-            genericMax: 0,
-        },
-        {
+            genericMax: 0
+        }, {
             category: CsTypeCategory.Task,
             types: ["Task", "System.Threading.Tasks.Task"],
             genericMin: 0,
-            genericMax: 1,
-        },
-        {
+            genericMax: 1
+        }, {
             category: CsTypeCategory.Tuple,
             types: ["Tuple", "System.Tuple"],
             genericMin: 1,
-            genericMax: 1000,
+            genericMax: 1000
         },
     ];
 
@@ -325,7 +316,7 @@ export function parseType(code: string): CsType | null {
             namespace: "",
             name: "Nullable",
             generics: [underlyingType],
-            array: arrays,
+            array: arrays
         };
     } else {
         return { name, generics, array: arrays, namespace: namespace };

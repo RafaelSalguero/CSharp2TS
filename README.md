@@ -152,4 +152,4 @@ On your workspace or user `settings.json`:
 - New config: removeUsings Remove using/import statements. Thanks @supermaz
 
 ### 0.0.27
-- New config: dictionaryToRecord Convert `Dictionary` to `Record`. Thanks @corwindickey
+- New config: dictionaryToRecord Convert `Dictionary` to `Record`. Thanks @CorwinDickey
