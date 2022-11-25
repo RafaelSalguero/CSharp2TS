@@ -1,4 +1,3 @@
-
 export interface ExtensionConfig {
     /**True for camelCase, false for preserving original name */
     propertiesToCamelCase: boolean;
@@ -8,7 +7,7 @@ export interface ExtensionConfig {
     recursiveTrimPostfixes: boolean;
     /**ignoreInitializer */
     ignoreInitializer: boolean;
-    /** True to remove method bodies, false to preserve the body as-is*/
+    /**True to remove method bodies, false to preserve the body as-is */
     removeMethodBodies: boolean;
     /**True to remove class constructors, false to treat then like any other method */
     removeConstructors: boolean;
@@ -30,6 +29,8 @@ export interface ExtensionConfig {
     removeSpecialKeywords: boolean;
     /**True to remove imports/using statements */
     removeUsings: boolean;
+    /**True to convert a C# dictionary into a typescript Record instead of { [key: t]: V }. Default is false */
+    dictionaryToRecord: boolean;
 }
 
 export const maxBodyDepth = 8;

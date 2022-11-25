@@ -11,7 +11,7 @@ Simple C# POCOs to TypeScript converter.
 Supports:
 - Automatic properties
 - Remove attributes
-- Detect common types such as int, long, ... 
+- Detect common types such as int, long, ...
 
 ## Settings
 On your workspace or user `settings.json`:
@@ -19,32 +19,35 @@ On your workspace or user `settings.json`:
 ```js
 // Place your settings in this file to overwrite default and user settings.
 {
-    //True for camelCase, false for preserving original name. Default is false
+    /** True for camelCase, false for preserving original name. Default is false */
     "csharp2ts.propertiesToCamelCase": false,
-    //Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive.
+    /** Removes specified postfixes from property names, types & class names. Can be array OR string. Case-sensitive. */
     "csharp2ts.trimPostfixes": "",
-    //Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true)
+    /** Whether or not trim postfixes recursive. (e.g. with postfixes 'A' & 'B' PersonAAB will become PersonAA when it's false & Person when it's true) */
     "csharp2ts.recursiveTrimPostfixes": false,
-    //Ignore property initializer    
+    /** Ignore property initializer */
     "csharp2ts.ignoreInitializer": true
-    //True to remove method bodies, false to preserve the body as-is
-     "csharp2ts.removeMethodBodies": true,
-     //True to remove class constructors, false to treat then like any other method
-     "csharp2ts.removeConstructors": false,
-     //'signature' to emit a method signature, 'lambda' to emit a lambda function. 'controller' to emit a lambda to call an async controller
-     "csharp2ts.methodStyle": 'signature',
-     //True to convert C# byte array type to Typescript string, defaults to true since the serialization of C# byte[] results in a string
-     "csharp2ts.byteArrayToString": true,
-     //"True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string"s
-     "csharp2ts.dateToDateOrString": true,
-     /*Modifiers to remove. Ex. if you want to remove private and internal members set to ['private', 'internal']*/
-     "csharp2ts.removeModifiers": [],
-     /*If setted, any property or field that its name matches the given regex will be removed, Ex. if you want to remove backing fields starting with underscore set to "_[a-z][a-zA-Z0-9]*" */
-     "csharp2ts.removeNameRegex": "",
-     /*True to convert classes to interfaces, false to convert classes to classes. Default is true*/
-     "csharp2ts.classToInterface": true,
-     /*True to preserve fields and property modifiers. Default is false*/
-     "csharp2ts.preserveModifiers": false
+    /** True to remove method bodies, false to preserve the body as-is */
+    "csharp2ts.removeMethodBodies": true,
+    /** True to remove class constructors, false to treat then like any other method */
+    "csharp2ts.removeConstructors": false,
+    /** 'signature' to emit a method signature, 'lambda' to emit a lambda function. 'controller' to emit a lambda to call an async controller */
+    "csharp2ts.methodStyle": 'signature',
+    /** True to convert C# byte array type to Typescript string, defaults to true since the serialization of C# byte[] results in a string */
+    "csharp2ts.byteArrayToString": true,
+    /** True to convert C# DateTime and DateTimeOffset to Typescript (Date | string), defaults to true since the serialization of C# DateTime results in a string */
+    "csharp2ts.dateToDateOrString": true,
+    /** Modifiers to remove. Ex. if you want to remove private and internal members set to ['private', 'internal'] */
+    "csharp2ts.removeModifiers": [],
+    /** If setted, any property or field that its name matches the given regex will be removed, Ex. if you want to remove backing fields starting with underscore set to "_[a-z][a-zA-Z0-9]*" */
+    "csharp2ts.removeNameRegex": "",
+    /** True to convert classes to interfaces, false to convert classes to classes. Default is true */
+    "csharp2ts.classToInterface": true,
+    /** True to preserve fields and property modifiers. Default is false */
+    "csharp2ts.preserveModifiers": false
+    /** True to convert a C# dictionary into a typescript Record instead of { [key: t]: V }. Default is false */
+    "dictionaryToRecord": false;
+
 }
 ```
 
@@ -131,7 +134,7 @@ On your workspace or user `settings.json`:
 - Bug fix: Support for fields
 - Bug fix: Translation was wrong on some special cases with generic types mixed with arrays
 - New config: `classToInterface`. Convert `class` to `interface` or `class`
-- New config: `preserveModifiers`. Preserve properties and field modifiers. 
+- New config: `preserveModifiers`. Preserve properties and field modifiers.
 - New config: `removeWithModifier`. Remove fields and properties with the given modifiers.
 - New config: `removeNameRegex`. Remove fields and properties that its name match the given regex.
 
@@ -143,3 +146,10 @@ On your workspace or user `settings.json`:
 
 #### 0.0.25
 - Support for C# 9
+
+### 0.0.26
+- New config: removeSpecialKeywords Remove virtual and #nullable statements. Thanks @supermaz
+- New config: removeUsings Remove using/import statements. Thanks @supermaz
+
+### 0.0.27
+- New config: dictionaryToRecord Convert `Dictionary` to `Record`. Thanks @CorwinDickey

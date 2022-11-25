@@ -1,4 +1,3 @@
-
 import { any, cap, nonCap, oneOrMore, optional, seq, zeroOrMore } from "./compose";
 import { identifier, namespace as namespaceRegex, space, spaceOptional } from "./regexs";
 import { ExtensionConfig } from "./config";
@@ -38,7 +37,7 @@ export interface CsType {
     /**Generic arguments */
     generics: CsType[];
 
-    /**Neasted arrays */
+    /**Nested arrays */
     array: CsArray[];
 }
 
@@ -66,9 +65,9 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
         category: CsTypeCategory;
         types: string[];
         genericMin: number;
-        genericMax: number
+        genericMax: number;
     };
-    const byteTypeName = ['byte', "Byte", "System.Byte"];
+    const byteTypeName = ["byte", "Byte", "System.Byte"];
 
     //Check if the type is byteArray
     if (byteTypeName.indexOf(x.name) != -1 && x.generics.length == 0 && x.array.length == 1 && x.array[0].dimensions == 1) {
@@ -99,17 +98,17 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
         }, {
             category: CsTypeCategory.Number,
             types: [
-                'int', "Int32", "System.Int32",
-                'float', "Single", "System.Single",
+                "int", "Int32", "System.Int32",
+                "float", "Single", "System.Single",
                 "double", "Double", "System.Double",
-                'decimal', "Decimal", "System.Decimal",
-                'long', "Int64", "System.Int64",
+                "decimal", "Decimal", "System.Decimal",
+                "long", "Int64", "System.Int64",
                 ...byteTypeName,
-                'sbyte', "SByte", "System.SByte",
-                'short', "Int16", "System.Int16",
-                'ushort', "UInt16", "System.UInt16",
-                'uint', "UInt32", "System.UInt32",
-                'ulong', "UInt64", "System.UInt64"
+                "sbyte", "SByte", "System.SByte",
+                "short", "Int16", "System.Int16",
+                "ushort", "UInt16", "System.UInt16",
+                "uint", "UInt32", "System.UInt32",
+                "ulong", "UInt64", "System.UInt64"
             ],
             genericMin: 0,
             genericMax: 0
@@ -146,7 +145,7 @@ export function getTypeCategory(x: CsType): CsTypeCategory {
 }
 
 export function convertToTypescript(x: CsType, config: ExtensionConfig): string {
-    if(config.byteArrayToString && getTypeCategory(x) ==  CsTypeCategory.ByteArray) {
+    if (config.byteArrayToString && getTypeCategory(x) == CsTypeCategory.ByteArray) {
         return "string";
     }
 
@@ -160,6 +159,7 @@ export function convertToTypescript(x: CsType, config: ExtensionConfig): string 
     }
     return convertToTypescriptNoArray(x, config) + arrayStr;
 }
+
 function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): string {
     const category = getTypeCategory(value);
     switch (category) {
@@ -172,11 +172,12 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
                 throw "";
             }
         }
-
         case CsTypeCategory.Dictionary: {
             let keyType = (getTypeCategory(value.generics[0]) == CsTypeCategory.Number) ? "number" : "string";
+            if (config.dictionaryToRecord) {
+                return `Record<${keyType}, ${convertToTypescript(value.generics[1], config)}>`;
+            }
             return `{ [key: ${keyType}]: ${convertToTypescript(value.generics[1], config)} }`;
-
         }
         case CsTypeCategory.Nullable: {
             return `${convertToTypescript(value.generics[0], config)} | null`;
@@ -199,7 +200,7 @@ function convertToTypescriptNoArray(value: CsType, config: ExtensionConfig): str
             return "number";
         }
         case CsTypeCategory.Date: {
-            return config.dateToDateOrString ? "Date | string"  : "Date";
+            return config.dateToDateOrString ? "Date | string" : "Date";
         }
         case CsTypeCategory.String: {
             return "string";
@@ -225,8 +226,8 @@ interface CsArray {
     dimensions: number;
 }
 
-/**Split on top level by a given separator, separators inside < >, [ ], { } or ( ) groups are not considered
- * 
+/**
+ * Split on top level by a given separator, separators inside < >, [ ], { } or ( ) groups are not considered
  * @param separator One char separators
  */
 export function splitTopLevel(text: string, separators: string[], openGroup: string[] = ["[", "(", "<", "{"], closeGroup: string[] = ["]", ")", ">", "}"]): string[] {
@@ -309,7 +310,6 @@ export function parseType(code: string): CsType | null {
     if (genericParseError) return null;
     const generics = genericsOrNull.map(x => x!);
 
-
     if (nullable) {
         var underlyingType = { namespace: "", name, generics, array: [] };
         return {
@@ -319,6 +319,6 @@ export function parseType(code: string): CsType | null {
             array: arrays
         };
     } else {
-        return { name, generics, array: arrays, namespace: namespace }
+        return { name, generics, array: arrays, namespace: namespace };
     }
 }
